@@ -24,15 +24,20 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import eu.bitwalker.useragentutils.UserAgent;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -49,6 +54,13 @@ public class DisplayData extends AppCompatActivity {
     @BindView(R.id.data_4) TextView mDataView4;
     @BindView(R.id.data_5) TextView mDataView5;
     @BindView(R.id.data_6) TextView mDataView6;
+
+    @BindView(R.id.percentage1) TextView mPercentage1;
+    @BindView(R.id.percentage2) TextView mPercentage2;
+    @BindView(R.id.percentage3) TextView mPercentage3;
+    @BindView(R.id.percentage4) TextView mPercentage4;
+    @BindView(R.id.percentage5) TextView mPercentage5;
+    @BindView(R.id.percentage6) TextView mPercentage6;
 
     private List<User> mUsers;
     private DecoView mArcView;
@@ -161,47 +173,40 @@ public class DisplayData extends AppCompatActivity {
 
                 String agent = jsonObject.getString("agent");
                 //mUsers.add(new User(agent));
-                list.add(agent);
+                list.add(UserAgent.parseUserAgentString(agent).getBrowser().toString());
             }
 
             //Map
             Map<String, Integer> agentsRepetitions = new HashMap<>();
-            for (String ag : list) {
-                if (!agentsRepetitions.containsKey(ag)) {
-                    agentsRepetitions.put(ag, 1);
+
+            for (String agent : list) {
+                if (!agentsRepetitions.containsKey(agent)) {
+                    agentsRepetitions.put(agent, 1);
                 } else {
                     //Get previous count
-                    int currentCount = agentsRepetitions.get(ag);
+                    int currentCount = agentsRepetitions.get(agent);
                     //Remove current key
-                    agentsRepetitions.remove(ag);
+                    agentsRepetitions.remove(agent);
                     //Increment and put the key again
                     currentCount++;
-                    agentsRepetitions.put(ag, currentCount);
+                    agentsRepetitions.put(agent, currentCount);
                 }
             }
 
+            Map<String, Integer> sortedMap = sortByValue(agentsRepetitions);
+
+            //Fill arrays with top 5
             final int arrayMaxs[] = new int[5];
             final String arrayMaxsKeys[] = new String[5];
-            final StringBuilder s = new StringBuilder();
-            for (Map.Entry<String, Integer> entry : agentsRepetitions.entrySet()) {
-                int reps = entry.getValue();
-
-                if (reps > arrayMaxs[0]) {
-                    arrayMaxs[0] = reps;
-                    arrayMaxsKeys[0] = entry.getKey();
-                } else if (reps > arrayMaxs[1]) {
-                    arrayMaxs[1] = reps;
-                    arrayMaxsKeys[1] = entry.getKey();
-                } else if (reps > arrayMaxs[2]) {
-                    arrayMaxs[2] = reps;
-                    arrayMaxsKeys[2] = entry.getKey();
-                } else if (reps > arrayMaxs[3]) {
-                    arrayMaxs[3] = reps;
-                    arrayMaxsKeys[3] = entry.getKey();
-                } else if (reps > arrayMaxs[4]) {
-                    arrayMaxs[4] = reps;
-                    arrayMaxsKeys[4] = entry.getKey();
+            int counter = 0;
+            for (Map.Entry<String, Integer> entry : sortedMap.entrySet()) {
+                if (counter < 5) {
+                    arrayMaxsKeys[counter] = entry.getKey();
+                    arrayMaxs[counter] = entry.getValue();
+                } else {
+                    break;
                 }
+                counter++;
             }
 
             runOnUiThread(new Runnable() {
@@ -237,23 +242,58 @@ public class DisplayData extends AppCompatActivity {
         int s6 = mArcView.addSeries(createDataSeries(320f, 320f, 64f, 0, "#f9a660"));
 
         //Animate
-        mArcView.addEvent(new DecoEvent.Builder(data6).setIndex(s1).setDelay(1000).build());
-        mArcView.addEvent(new DecoEvent.Builder(data1).setIndex(s2).setDelay(1500).build());
-        mArcView.addEvent(new DecoEvent.Builder(data2).setIndex(s3).setDelay(2000).build());
-        mArcView.addEvent(new DecoEvent.Builder(data3).setIndex(s4).setDelay(2500).build());
-        mArcView.addEvent(new DecoEvent.Builder(data4).setIndex(s5).setDelay(3000).build());
-        mArcView.addEvent(new DecoEvent.Builder(data5).setIndex(s6).setDelay(3500).build());
+        mArcView.addEvent(new DecoEvent.Builder(data1).setIndex(s1).setDelay(1000).build());
+        mArcView.addEvent(new DecoEvent.Builder(data2).setIndex(s2).setDelay(1500).build());
+        mArcView.addEvent(new DecoEvent.Builder(data3).setIndex(s3).setDelay(2000).build());
+        mArcView.addEvent(new DecoEvent.Builder(data4).setIndex(s4).setDelay(2500).build());
+        mArcView.addEvent(new DecoEvent.Builder(data5).setIndex(s5).setDelay(3000).build());
+        mArcView.addEvent(new DecoEvent.Builder(data6).setIndex(s6).setDelay(3500).build());
 
         //SetText
-        mDataView1.setText(String.format("%d - %s", data6, "Other browsers"));
-        mDataView2.setText(String.format("%d - %s", data1, arrayMaxsKeys[0]));
-        mDataView3.setText(String.format("%d - %s", data2, arrayMaxsKeys[1]));
-        mDataView4.setText(String.format("%d - %s", data3, arrayMaxsKeys[2]));
-        mDataView5.setText(String.format("%d - %s", data4, arrayMaxsKeys[3]));
-        mDataView6.setText(String.format("%d - %s", data5, arrayMaxsKeys[4]));
+        mDataView1.setText(upperCaseFirstLetter(arrayMaxsKeys[0]));
+        mDataView2.setText(upperCaseFirstLetter(arrayMaxsKeys[1]));
+        mDataView3.setText(upperCaseFirstLetter(arrayMaxsKeys[2]));
+        mDataView4.setText(upperCaseFirstLetter(arrayMaxsKeys[3]));
+        mDataView5.setText(upperCaseFirstLetter(arrayMaxsKeys[4]));
+        mDataView6.setText("Other browsers");
+
+        mPercentage1.setText(data1 + "");
+        mPercentage2.setText(data2 + "");
+        mPercentage3.setText(data3 + "");
+        mPercentage4.setText(data4 + "");
+        mPercentage5.setText(data5 + "");
+        mPercentage6.setText(data6 + "");
     }
 
     private int calculatePercentage(int arrayMax) {
         return (arrayMax * 100) / mDataTotal;
+    }
+
+    private Map<String, Integer> sortByValue(Map<String, Integer> unsortMap) {
+
+        // 1. Convert Map to List of Map
+        List<Map.Entry<String, Integer>> list =
+                new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
+
+        // 2. Sort list with Collections.sort(), provide a custom Comparator
+        //    Try switch the o1 o2 position for a different order
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1,
+                               Map.Entry<String, Integer> o2) {
+                return (o2.getValue()).compareTo(o1.getValue());
+            }
+        });
+
+        // 3. Loop the sorted list and put it into a new insertion order Map LinkedHashMap
+        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        for (Map.Entry<String, Integer> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedMap;
+    }
+
+    private String upperCaseFirstLetter(String string) {
+        return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
     }
 }
