@@ -8,13 +8,17 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.charts.SeriesLabel;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
+import com.jeeps.datavisualizer.adapters.CustomOnItemSelectedListener;
 import com.jeeps.datavisualizer.model.User;
 
 import org.json.JSONArray;
@@ -46,7 +50,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class DisplayData extends AppCompatActivity {
+public class DisplayData extends AppCompatActivity implements CustomOnItemSelectedListener.SpinnerListener {
+
+    private static final String FILTER_OS = "Operative System";
+    private static final String FILTER_BROWSERS = "Browser";
 
     @BindView(R.id.data_1) TextView mDataView1;
     @BindView(R.id.data_2) TextView mDataView2;
@@ -62,11 +69,20 @@ public class DisplayData extends AppCompatActivity {
     @BindView(R.id.percentage5) TextView mPercentage5;
     @BindView(R.id.percentage6) TextView mPercentage6;
 
+    @BindView(R.id.spinner)
+    Spinner mDataSelector;
+
     private List<User> mUsers;
     private DecoView mArcView;
     private ProgressBar mProgressBar;
 
     private int mDataTotal;
+    private int mMSeriesIndex1;
+    private int mMSeriesIndex2;
+    private int mMSeriesIndex3;
+    private int mMSeriesIndex4;
+    private int mMSeriesIndex5;
+    private int mMSeriesIndex6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +96,14 @@ public class DisplayData extends AppCompatActivity {
         mProgressBar = (ProgressBar) findViewById(R.id.data_progress_bar);
 
         displayDecoView();
-        try {
-            requestService();
+       /* try {
+            requestService(FILTER_BROWSERS);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
+
+        //Populate spinner
+        populateSpinner();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -95,6 +114,19 @@ public class DisplayData extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void populateSpinner() {
+        List<String> spinnerList = new ArrayList<>();
+        spinnerList.add(FILTER_BROWSERS);
+        spinnerList.add(FILTER_OS);
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                this, R.layout.simple_spinner_item, spinnerList);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        mDataSelector.setAdapter(spinnerAdapter);
+        mDataSelector.setOnItemSelectedListener(new CustomOnItemSelectedListener(this));
     }
 
     private void displayDecoView() {
@@ -111,6 +143,13 @@ public class DisplayData extends AppCompatActivity {
         mArcView.addSeries(getBackgroundTrack(320f, 320f, 64f));
 
 
+        //Create data series track
+        mMSeriesIndex1 = mArcView.addSeries(createDataSeries(0, 0, 64f, 0, "#56d1c0"));
+        mMSeriesIndex2 = mArcView.addSeries(createDataSeries(64f, 64f, 64f, 0, "#60eba8"));
+        mMSeriesIndex3 = mArcView.addSeries(createDataSeries(128f, 128f, 64f, 0, "#78eb60"));
+        mMSeriesIndex4 = mArcView.addSeries(createDataSeries(192f, 192f, 64f, 0, "#cef866"));
+        mMSeriesIndex5 = mArcView.addSeries(createDataSeries(256f, 256f, 64f, 0, "#f9f260"));
+        mMSeriesIndex6 = mArcView.addSeries(createDataSeries(320f, 320f, 64f, 0, "#f9a660"));
     }
 
     private SeriesItem getBackgroundTrack(float xIn, float yIn, float width) {
@@ -133,7 +172,10 @@ public class DisplayData extends AppCompatActivity {
 
     private final OkHttpClient client = new OkHttpClient();
 
-    public void requestService() throws Exception {
+    public void requestService(final String selectedData) throws Exception {
+        //Show progress bar
+        mProgressBar.setVisibility(View.VISIBLE);
+
         Request request = new Request.Builder()
                 .url("http://jamescloud.hopto.org:8080/logs")
                 .build();
@@ -153,14 +195,14 @@ public class DisplayData extends AppCompatActivity {
                     for (int i = 0, size = responseHeaders.size(); i < size; i++) {
                         System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
                     }
-                    extractData(responseBody.string());
+                    extractData(responseBody.string(), selectedData);
                     System.out.println();
                 }
             }
         });
     }
 
-    private void extractData(String string) {
+    private void extractData(String string, final String selectedData) {
         try {
             JSONArray data = new JSONArray(string);
             List<String> list = new ArrayList<>();
@@ -173,7 +215,10 @@ public class DisplayData extends AppCompatActivity {
 
                 String agent = jsonObject.getString("agent");
                 //mUsers.add(new User(agent));
-                list.add(UserAgent.parseUserAgentString(agent).getBrowser().toString());
+                if (selectedData.equals(FILTER_OS))
+                    list.add(UserAgent.parseUserAgentString(agent).getOperatingSystem().toString());
+                else
+                    list.add(UserAgent.parseUserAgentString(agent).getBrowser().toString());
             }
 
             //Map
@@ -213,7 +258,7 @@ public class DisplayData extends AppCompatActivity {
                 @Override
                 public void run() {
                     mProgressBar.setVisibility(View.INVISIBLE);
-                    showData(arrayMaxs, arrayMaxsKeys);
+                    showData(arrayMaxs, arrayMaxsKeys, selectedData);
                 }
             });
 
@@ -223,7 +268,7 @@ public class DisplayData extends AppCompatActivity {
         }
     }
 
-    private void showData(final int[] arrayMaxs, String[] arrayMaxsKeys) {
+    private void showData(final int[] arrayMaxs, String[] arrayMaxsKeys, String selectedData) {
         //Calculate percentages
         int data1 = calculatePercentage(arrayMaxs[0]);
         int data2 = calculatePercentage(arrayMaxs[1]);
@@ -233,21 +278,13 @@ public class DisplayData extends AppCompatActivity {
         //Remaining
         int data6 = 100 - (data1 + data2 + data3 + data4 + data5);
 
-        //Create data series track
-        int s1 = mArcView.addSeries(createDataSeries(0, 0, 64f, 0, "#56d1c0"));
-        int s2 = mArcView.addSeries(createDataSeries(64f, 64f, 64f, 0, "#60eba8"));
-        int s3 = mArcView.addSeries(createDataSeries(128f, 128f, 64f, 0, "#78eb60"));
-        int s4 = mArcView.addSeries(createDataSeries(192f, 192f, 64f, 0, "#cef866"));
-        int s5 = mArcView.addSeries(createDataSeries(256f, 256f, 64f, 0, "#f9f260"));
-        int s6 = mArcView.addSeries(createDataSeries(320f, 320f, 64f, 0, "#f9a660"));
-
         //Animate
-        mArcView.addEvent(new DecoEvent.Builder(data1).setIndex(s1).setDelay(1000).build());
-        mArcView.addEvent(new DecoEvent.Builder(data2).setIndex(s2).setDelay(1500).build());
-        mArcView.addEvent(new DecoEvent.Builder(data3).setIndex(s3).setDelay(2000).build());
-        mArcView.addEvent(new DecoEvent.Builder(data4).setIndex(s4).setDelay(2500).build());
-        mArcView.addEvent(new DecoEvent.Builder(data5).setIndex(s5).setDelay(3000).build());
-        mArcView.addEvent(new DecoEvent.Builder(data6).setIndex(s6).setDelay(3500).build());
+        mArcView.addEvent(new DecoEvent.Builder(data1).setIndex(mMSeriesIndex1).setDelay(500).build());
+        mArcView.addEvent(new DecoEvent.Builder(data2).setIndex(mMSeriesIndex2).setDelay(1000).build());
+        mArcView.addEvent(new DecoEvent.Builder(data3).setIndex(mMSeriesIndex3).setDelay(1500).build());
+        mArcView.addEvent(new DecoEvent.Builder(data4).setIndex(mMSeriesIndex4).setDelay(2000).build());
+        mArcView.addEvent(new DecoEvent.Builder(data5).setIndex(mMSeriesIndex5).setDelay(2500).build());
+        mArcView.addEvent(new DecoEvent.Builder(data6).setIndex(mMSeriesIndex6).setDelay(3000).build());
 
         //SetText
         mDataView1.setText(upperCaseFirstLetter(arrayMaxsKeys[0]));
@@ -255,7 +292,10 @@ public class DisplayData extends AppCompatActivity {
         mDataView3.setText(upperCaseFirstLetter(arrayMaxsKeys[2]));
         mDataView4.setText(upperCaseFirstLetter(arrayMaxsKeys[3]));
         mDataView5.setText(upperCaseFirstLetter(arrayMaxsKeys[4]));
-        mDataView6.setText("Other browsers");
+        if (selectedData.equals(FILTER_BROWSERS))
+            mDataView6.setText("Other browsers");
+        else
+            mDataView6.setText("Other Operative Systems");
 
         mPercentage1.setText(data1 + "");
         mPercentage2.setText(data2 + "");
@@ -275,7 +315,7 @@ public class DisplayData extends AppCompatActivity {
         List<Map.Entry<String, Integer>> list =
                 new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
 
-        // 2. Sort list with Collections.sort(), provide a custom Comparator
+        // 2. Sort list with Collections.sort(), provide a custom
         //    Try switch the o1 o2 position for a different order
         Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
             public int compare(Map.Entry<String, Integer> o1,
@@ -294,6 +334,15 @@ public class DisplayData extends AppCompatActivity {
     }
 
     private String upperCaseFirstLetter(String string) {
-        return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+        return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase().replace("_", " ");
+    }
+
+    @Override
+    public void itemSelected(String item) {
+        try {
+            requestService(item);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
