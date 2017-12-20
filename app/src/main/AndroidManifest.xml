@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.jeeps.datavisualizer">
-    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -36,6 +37,11 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.jeeps.datavisualizer.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".DisplaySensorData"
+            android:label="@string/title_activity_display_sensor_data"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

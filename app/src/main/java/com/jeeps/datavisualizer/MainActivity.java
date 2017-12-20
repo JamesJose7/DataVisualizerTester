@@ -6,21 +6,40 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
+import com.jeeps.datavisualizer.model.SensorData;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "REALTIME";
     private TextView mTextMessage;
     private Button mButton;
     private SeekBar mSeekBar;
+
+    @BindView(R.id.button2) Button mButton2;
+    @BindView(R.id.realtime) TextView mRealText;
 
     private int mProgress = 0;
 
@@ -45,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
     };
+    private FirebaseDatabase mDatabase;
+    private DatabaseReference mMyRef;
+    private DatabaseReference mTestObject;
 
     private void homeTab() {
         final DecoView arcView = (DecoView) findViewById(R.id.dynamicArcView);
@@ -203,10 +225,16 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void displaySensorDataActivity() {
+        Intent intent = new Intent(this, DisplaySensorData.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         mTextMessage = (TextView) findViewById(R.id.message);
         mButton = (Button) findViewById(R.id.button);
@@ -219,8 +247,70 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Write a message to the database
+        mDatabase = FirebaseDatabase.getInstance();
+        mMyRef = mDatabase.getReference("message");
+        mTestObject = mDatabase.getReference("object");
+
+        // Read from the database
+        mMyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String value = dataSnapshot.getValue(String.class);
+                Log.d(TAG, "Value is: " + value);
+
+                //mRealText.setText(value);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+
+        mTestObject.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                SensorData value = dataSnapshot.getValue(SensorData.class);
+                Log.d(TAG, "Value is: " + value);
+
+                mRealText.setText(value.getHumidity() + "");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+    @OnClick(R.id.button2)
+    protected void changeValue() {
+        Random random = new Random();
+        List<Double> week = new ArrayList<>();
+        for (int i = 0; i < 7; i++)
+            week.add(getRandomDouble(80));
+        int humidity = random.nextInt(100);
+
+        //mMyRef.setValue("Hello, World! " + rand);
+
+        SensorData sensorData = new SensorData(week.get(0), humidity, week);
+        mTestObject.setValue(sensorData);
+
+    }
+
+
+    private double getRandomDouble(int limit) {
+        Random random = new Random();
+        return random.nextInt(limit);
+    }
 }
