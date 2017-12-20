@@ -297,9 +297,9 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button2)
     protected void changeValue() {
         Random random = new Random();
-        List<Double> week = new ArrayList<>();
+        List<Float> week = new ArrayList<>();
         for (int i = 0; i < 7; i++)
-            week.add(getRandomDouble(80));
+            week.add((float) getRandomDouble(80));
         int humidity = random.nextInt(100);
 
         //mMyRef.setValue("Hello, World! " + rand);

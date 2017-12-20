@@ -9,9 +9,9 @@ import java.util.List;
 public class SensorData {
     private double temperature;
     private double humidity;
-    private List<Double> weeklyTemperature;
+    private List<Float> weeklyTemperature;
 
-    public SensorData(double temperature, double humidity, List<Double> weeklyTemperature) {
+    public SensorData(double temperature, double humidity, List<Float> weeklyTemperature) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.weeklyTemperature = weeklyTemperature;
@@ -35,11 +35,11 @@ public class SensorData {
         this.humidity = humidity;
     }
 
-    public List<Double> getWeeklyTemperature() {
+    public List<Float> getWeeklyTemperature() {
         return weeklyTemperature;
     }
 
-    public void setWeeklyTemperature(List<Double> weeklyTemperature) {
+    public void setWeeklyTemperature(List<Float> weeklyTemperature) {
         this.weeklyTemperature = weeklyTemperature;
     }
 }

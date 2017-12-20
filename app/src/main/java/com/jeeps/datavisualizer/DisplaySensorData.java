@@ -11,6 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.db.chart.animation.Animation;
+import com.db.chart.model.LineSet;
+import com.db.chart.model.Point;
+import com.db.chart.view.LineChartView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,8 +25,12 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.jeeps.datavisualizer.model.SensorData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class DisplaySensorData extends AppCompatActivity {
 
@@ -32,11 +40,16 @@ public class DisplaySensorData extends AppCompatActivity {
     DecoView mHumidityGraph;
     @BindView(R.id.humidity_text)
     TextView mHumidityText;
+    @BindView(R.id.week_temp_linechart)
+    LineChartView mWeekTempChart;
 
     private int humidityDataIndex;
 
     private FirebaseDatabase mDatabase;
     private DatabaseReference mSensorData;
+
+    private final String[] weekLabels = {"M", "T", "W", "T", "F", "S", "S"};
+    private final float[] weekDefault = {100,100,100,100,100,100,100};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +93,12 @@ public class DisplaySensorData extends AppCompatActivity {
                 mHumidityGraph.addEvent(new DecoEvent.Builder(humidity).
                         setColor(getHumidityColor(humidity)).
                         setIndex(humidityDataIndex).setDelay(500).build());
+
+
+                //Weekly temperature
+                float weekTemp[] = listToArray(value.getWeeklyTemperature());
+                mWeekTempChart.updateValues(0, weekTemp);
+                mWeekTempChart.notifyDataUpdate();
             }
 
             @Override
@@ -88,6 +107,15 @@ public class DisplaySensorData extends AppCompatActivity {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
+    }
+
+    private float[] listToArray(List<Float> weeklyTemperature) {
+        float weekTemp[] = new float[weeklyTemperature.size()];
+
+        for (int i = 0; i < weeklyTemperature.size(); i++)
+            weekTemp[i] = weeklyTemperature.get(i);
+
+        return weekTemp;
     }
 
     private int getHumidityColor(int humidity) {
@@ -104,10 +132,15 @@ public class DisplaySensorData extends AppCompatActivity {
     }
 
     private void initializeGraphs() {
+        //Humidity chart
         mHumidityGraph.addSeries(getBackgroundTrack(0, 0, 100f));
-
         //Create data series track
         humidityDataIndex = mHumidityGraph.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
+
+        //Weekly temperature
+        LineSet dataset = new LineSet(weekLabels, weekDefault);
+        mWeekTempChart.addData(dataset);
+        mWeekTempChart.show(new Animation());
     }
 
     private SeriesItem getBackgroundTrack(float xIn, float yIn, float width) {
