@@ -297,21 +297,28 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button2)
     protected void changeValue() {
         Random random = new Random();
-        List<Float> week = new ArrayList<>();
+        List<Float> weekMin = new ArrayList<>();
+        List<Float> weekMax = new ArrayList<>();
+
         for (int i = 0; i < 7; i++)
-            week.add((float) getRandomDouble(80));
+            weekMin.add((float) getRandomDouble(0, 70));
+
+        //Generate random max numbers
+        for (int i = 0; i < 7; i++) {
+            int minValue = weekMin.get(i).intValue() + 10;
+            weekMax.add((float) getRandomDouble(minValue, 100));
+        }
         int humidity = random.nextInt(100);
 
         //mMyRef.setValue("Hello, World! " + rand);
 
-        SensorData sensorData = new SensorData(week.get(0), humidity, week);
+        SensorData sensorData = new SensorData(weekMin.get(0), humidity, weekMin, weekMax);
         mTestObject.setValue(sensorData);
 
     }
 
-
-    private double getRandomDouble(int limit) {
+    private double getRandomDouble(int min, int max) {
         Random random = new Random();
-        return random.nextInt(limit);
+        return random.nextInt((max - min) + 1) + min;
     }
 }

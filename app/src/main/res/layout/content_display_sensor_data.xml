@@ -46,6 +46,7 @@
                 android:layout_below="@id/humidity_layout">
 
                 <com.db.chart.view.LineChartView
+                    xmlns:chart="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/week_temp_linechart"
                     android:layout_width="match_parent"
                     android:layout_height="180dp"

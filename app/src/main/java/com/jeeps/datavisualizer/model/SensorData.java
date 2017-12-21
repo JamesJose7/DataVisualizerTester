@@ -9,12 +9,14 @@ import java.util.List;
 public class SensorData {
     private double temperature;
     private double humidity;
-    private List<Float> weeklyTemperature;
+    private List<Float> weeklyTemperatureMin;
+    private List<Float> weeklyTemperatureMax;
 
-    public SensorData(double temperature, double humidity, List<Float> weeklyTemperature) {
+    public SensorData(double temperature, double humidity, List<Float> weeklyTemperatureMin, List<Float> weeklyTemperatureMax) {
         this.temperature = temperature;
         this.humidity = humidity;
-        this.weeklyTemperature = weeklyTemperature;
+        this.weeklyTemperatureMin = weeklyTemperatureMin;
+        this.weeklyTemperatureMax = weeklyTemperatureMax;
     }
 
     public SensorData() {}
@@ -35,12 +37,20 @@ public class SensorData {
         this.humidity = humidity;
     }
 
-    public List<Float> getWeeklyTemperature() {
-        return weeklyTemperature;
+    public List<Float> getWeeklyTemperatureMin() {
+        return weeklyTemperatureMin;
     }
 
-    public void setWeeklyTemperature(List<Float> weeklyTemperature) {
-        this.weeklyTemperature = weeklyTemperature;
+    public void setWeeklyTemperatureMin(List<Float> weeklyTemperatureMin) {
+        this.weeklyTemperatureMin = weeklyTemperatureMin;
+    }
+
+    public List<Float> getWeeklyTemperatureMax() {
+        return weeklyTemperatureMax;
+    }
+
+    public void setWeeklyTemperatureMax(List<Float> weeklyTemperatureMax) {
+        this.weeklyTemperatureMax = weeklyTemperatureMax;
     }
 }
 

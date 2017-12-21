@@ -3,6 +3,7 @@ package com.jeeps.datavisualizer;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +14,6 @@ import android.widget.TextView;
 
 import com.db.chart.animation.Animation;
 import com.db.chart.model.LineSet;
-import com.db.chart.model.Point;
 import com.db.chart.view.LineChartView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,10 +27,10 @@ import com.jeeps.datavisualizer.model.SensorData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class DisplaySensorData extends AppCompatActivity {
 
@@ -49,7 +49,9 @@ public class DisplaySensorData extends AppCompatActivity {
     private DatabaseReference mSensorData;
 
     private final String[] weekLabels = {"M", "T", "W", "T", "F", "S", "S"};
-    private final float[] weekDefault = {100,100,100,100,100,100,100};
+    private final float[] weekDefault = {99,99,99,99,99,99,99};
+
+    private boolean FIRST_LOAD = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +68,55 @@ public class DisplaySensorData extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Data updated", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                Random random = new Random();
+                List<Float> weekMin = new ArrayList<>();
+                List<Float> weekMax = new ArrayList<>();
+
+                for (int i = 0; i < 7; i++)
+                    weekMin.add((float) getRandomDouble(0, 70));
+
+                //Generate random max numbers
+                for (int i = 0; i < 7; i++) {
+                    int minValue = weekMin.get(i).intValue() + 10;
+                    weekMax.add((float) getRandomDouble(minValue, 100));
+                }
+                int humidity = random.nextInt(100);
+
+                //mMyRef.setValue("Hello, World! " + rand);
+
+                SensorData sensorData = new SensorData(weekMin.get(0), humidity, weekMin, weekMax);
+                mSensorData.setValue(sensorData);
             }
         });
+    }
+
+    private void initializeGraphs() {
+        //Humidity chart
+        mHumidityGraph.addSeries(getBackgroundTrack(0, 0, 100f));
+        //Create data series track
+        humidityDataIndex = mHumidityGraph.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
+
+        //Weekly temperature
+        LineSet dataset = new LineSet(weekLabels, weekDefault);
+        LineSet dataset2 = new LineSet(weekLabels, weekDefault);
+
+        mWeekTempChart.addData(dataset);
+        mWeekTempChart.addData(dataset2);
+
+        /*dataset.setColor(Color.parseColor("#53c1bd"))
+                .setFill(Color.parseColor("#3d6c73"))
+                .setGradientFill(new int[]{Color.parseColor("#364d5a"), Color.parseColor("#3f7178")},
+                        null);*/
+        dataset.setColor(Color.parseColor("#53c1bd"));
+        dataset2.setColor(Color.parseColor("#5b5cbd"));
+
+
+        mWeekTempChart
+                .setStep(10)
+                .show(new Animation());
     }
 
     private void setFirebaseDatabase() {
@@ -78,6 +125,10 @@ public class DisplaySensorData extends AppCompatActivity {
 
         mSensorData = mDatabase.getReference("object");
         mSensorData.addValueEventListener(new ValueEventListener() {
+
+            private float[] mWeekTempMax;
+            private float[] mWeekTempMin;
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
@@ -94,11 +145,34 @@ public class DisplaySensorData extends AppCompatActivity {
                         setColor(getHumidityColor(humidity)).
                         setIndex(humidityDataIndex).setDelay(500).build());
 
+                //Weekly temperature
+                mWeekTempMin = listToArray(value.getWeeklyTemperatureMin());
+                mWeekTempMax = listToArray(value.getWeeklyTemperatureMax());
 
                 //Weekly temperature
-                float weekTemp[] = listToArray(value.getWeeklyTemperature());
-                mWeekTempChart.updateValues(0, weekTemp);
-                mWeekTempChart.notifyDataUpdate();
+                if (FIRST_LOAD) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Min temp
+                            mWeekTempChart.dismissAllTooltips();
+                            mWeekTempChart.updateValues(0, mWeekTempMin);
+                            //Max temp
+                            mWeekTempChart.updateValues(1, mWeekTempMax);
+                            mWeekTempChart.notifyDataUpdate();
+
+                        }
+                    }, 2000);
+                    FIRST_LOAD = false;
+                } else {
+                    //Min temp
+                    mWeekTempChart.dismissAllTooltips();
+                    mWeekTempChart.updateValues(0, mWeekTempMin);
+                    //Max temp
+                    mWeekTempChart.updateValues(1, mWeekTempMax);
+                    mWeekTempChart.notifyDataUpdate();
+                }
             }
 
             @Override
@@ -107,6 +181,11 @@ public class DisplaySensorData extends AppCompatActivity {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
+    }
+
+    private double getRandomDouble(int min, int max) {
+        Random random = new Random();
+        return random.nextInt((max - min) + 1) + min;
     }
 
     private float[] listToArray(List<Float> weeklyTemperature) {
@@ -129,18 +208,6 @@ public class DisplaySensorData extends AppCompatActivity {
             return Color.parseColor(average);
         else
             return Color.parseColor(below);
-    }
-
-    private void initializeGraphs() {
-        //Humidity chart
-        mHumidityGraph.addSeries(getBackgroundTrack(0, 0, 100f));
-        //Create data series track
-        humidityDataIndex = mHumidityGraph.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
-
-        //Weekly temperature
-        LineSet dataset = new LineSet(weekLabels, weekDefault);
-        mWeekTempChart.addData(dataset);
-        mWeekTempChart.show(new Animation());
     }
 
     private SeriesItem getBackgroundTrack(float xIn, float yIn, float width) {
