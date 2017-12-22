@@ -42,6 +42,8 @@ public class DisplaySensorData extends AppCompatActivity {
     TextView mHumidityText;
     @BindView(R.id.week_temp_linechart)
     LineChartView mWeekTempChart;
+    @BindView(R.id.current_temp_text)
+    TextView mCurrentTempText;
 
     private int humidityDataIndex;
 
@@ -133,10 +135,11 @@ public class DisplaySensorData extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                SensorData value = dataSnapshot.getValue(SensorData.class);
-                Log.d(TAG, "Value is: " + value);
+                SensorData sensorData = dataSnapshot.getValue(SensorData.class);
+                Log.d(TAG, "Value is: " + sensorData);
 
-                int humidity = (int) value.getHumidity();
+                //Current humidity
+                int humidity = (int) sensorData.getHumidity();
                 //Display percentage
                 String humidityPercent = String.format("%d%%", humidity);
                 mHumidityText.setText(humidityPercent);
@@ -145,11 +148,13 @@ public class DisplaySensorData extends AppCompatActivity {
                         setColor(getHumidityColor(humidity)).
                         setIndex(humidityDataIndex).setDelay(500).build());
 
-                //Weekly temperature
-                mWeekTempMin = listToArray(value.getWeeklyTemperatureMin());
-                mWeekTempMax = listToArray(value.getWeeklyTemperatureMax());
+                //Current temperature
+                int currentTemp = (int) sensorData.getTemperature();
+                mCurrentTempText.setText(String.format("%d\u00b0", currentTemp));
 
                 //Weekly temperature
+                mWeekTempMin = listToArray(sensorData.getWeeklyTemperatureMin());
+                mWeekTempMax = listToArray(sensorData.getWeeklyTemperatureMax());
                 if (FIRST_LOAD) {
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
