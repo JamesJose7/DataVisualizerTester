@@ -2,6 +2,7 @@ package com.jeeps.datavisualizer;
 
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -10,10 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.db.chart.animation.Animation;
 import com.db.chart.model.LineSet;
+import com.db.chart.view.HorizontalBarChartView;
 import com.db.chart.view.LineChartView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -42,8 +45,12 @@ public class DisplaySensorData extends AppCompatActivity {
     TextView mHumidityText;
     @BindView(R.id.week_temp_linechart)
     LineChartView mWeekTempChart;
+    @BindView(R.id.week_temp_barchart)
+    HorizontalBarChartView mHorizontalBarChart;
     @BindView(R.id.current_temp_text)
     TextView mCurrentTempText;
+    @BindView(R.id.thermometer_image)
+    ImageView mThermometerImage;
 
     private int humidityDataIndex;
 
@@ -151,6 +158,8 @@ public class DisplaySensorData extends AppCompatActivity {
                 //Current temperature
                 int currentTemp = (int) sensorData.getTemperature();
                 mCurrentTempText.setText(String.format("%d\u00b0", currentTemp));
+                //Set thermometer image accordingly
+                mThermometerImage.setImageResource(getPercentageTermometer(currentTemp));
 
                 //Weekly temperature
                 mWeekTempMin = listToArray(sensorData.getWeeklyTemperatureMin());
@@ -230,5 +239,17 @@ public class DisplaySensorData extends AppCompatActivity {
                 .setInset(new PointF(xIn, yIn))
                 .setLineWidth(width)
                 .build();
+    }
+
+    private int getPercentageTermometer(int percent) {
+        if (percent >= 85)
+            return R.drawable.thermometer;
+        else if (percent >= 60)
+            return R.drawable.thermometer_75;
+        else if (percent >= 35)
+            return R.drawable.thermometer_50;
+        else if (percent >= 10)
+            return R.drawable.thermometer_25;
+        return R.drawable.thermometer_0;
     }
 }
