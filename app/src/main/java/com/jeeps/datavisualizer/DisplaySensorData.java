@@ -74,6 +74,8 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
+        //Change action bar title
+        getSupportActionBar().setTitle("Sensores UTPL");
 
         initializeGraphs();
 
@@ -92,6 +94,9 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
         });*/
     }
 
+    /**
+     * Initializes all graphs with default values on data sets and applies custom styles
+     */
     private void initializeGraphs() {
         //Humidity chart
         mHumidityGraph.addSeries(getBackgroundTrack(0, 0, 100f));
@@ -132,58 +137,12 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
                 .show(new Animation());
     }
 
-    private float[] listToArray(List<Float> weeklyTemperature) {
-        float weekTemp[] = new float[weeklyTemperature.size()];
-
-        for (int i = 0; i < weeklyTemperature.size(); i++)
-            weekTemp[i] = weeklyTemperature.get(i);
-
-        return weekTemp;
-    }
-
-    private int getHumidityColor(int humidity) {
-        String below = "#00b3e3";
-        String average = "#0f61a0";
-        String above = "#253362";
-
-        if (humidity >= 66)
-            return Color.parseColor(above);
-        else if (humidity >= 33)
-            return Color.parseColor(average);
-        else
-            return Color.parseColor(below);
-    }
-
-    private SeriesItem getBackgroundTrack(float xIn, float yIn, float width) {
-        return new SeriesItem.Builder(Color.argb(255, 218, 218, 218))
-                .setRange(0, 100, 100)
-                .setInset(new PointF(xIn, yIn))
-                .setLineWidth(width)
-                .build();
-    }
-
-    private SeriesItem createDataSeries(float xIn, float yIn, float width, int initialValue,
-                                        String color) {
-        return new SeriesItem.Builder(Color.parseColor(color))
-                .setRange(0, 100, initialValue)
-                .setInset(new PointF(xIn, yIn))
-                .setLineWidth(width)
-                .build();
-    }
-
-    private int getPercentageTermometer(int percent) {
-        if (percent >= 85)
-            return R.drawable.thermometer;
-        else if (percent >= 60)
-            return R.drawable.thermometer_75;
-        else if (percent >= 35)
-            return R.drawable.thermometer_50;
-        else if (percent >= 10)
-            return R.drawable.thermometer_25;
-        return R.drawable.thermometer_0;
-    }
-
-
+    /**
+     * Listens to changes in the {@link FireBaseHelper} and updates the view every time the model
+     * has been changed
+     * @param sensorData Contains the sensor data to be displayed on each graph
+     * @see com.jeeps.datavisualizer.controller.FireBaseHelper.FireBaseListener
+     */
     @Override
     public void update(SensorData sensorData) {
         //Current humidity
@@ -203,11 +162,15 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
         mThermometerImage.setImageResource(getPercentageTermometer(currentTemp));
 
         //Weekly temperature
+        //Arrays needed for both the linear and bar chart
         mWeekTempMin = listToArray(sensorData.getWeeklyTemperatureMin());
         mWeekTempMax = listToArray(sensorData.getWeeklyTemperatureMax());
+        //Convert min temperature array to negative values for the left portion of the horizontal bar chart
         mWeekTempMinNegative = listToArray(sensorData.getWeeklyTemperatureMin());
         for (int i = 0; i < mWeekTempMinNegative.length; i++)
             mWeekTempMinNegative[i] *= -1;
+
+        //Delay the first data load on graphs since they take some time to initialize properly
         if (firstLoad) {
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -223,6 +186,9 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
         }
     }
 
+    /**
+     * Notifies all charts that their data has been updated
+     */
     private void updateCharts() {
         //Min temp
         mWeekTempChart.dismissAllTooltips();
@@ -237,4 +203,82 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
         mHorizontalBarChart.updateValues(1, mWeekTempMax);
         mHorizontalBarChart.notifyDataUpdate();
     }
+
+    private float[] listToArray(List<Float> weeklyTemperature) {
+        float weekTemp[] = new float[weeklyTemperature.size()];
+
+        for (int i = 0; i < weeklyTemperature.size(); i++)
+            weekTemp[i] = weeklyTemperature.get(i);
+
+        return weekTemp;
+    }
+
+    /**
+     * Returns the appropriate color for the humidity graph based on percentages
+     * @param humidity the current humidity percentage
+     * @return the color in hexadecimal format
+     */
+    private int getHumidityColor(int humidity) {
+        String below = "#00b3e3";
+        String average = "#0f61a0";
+        String above = "#253362";
+
+        if (humidity >= 66)
+            return Color.parseColor(above);
+        else if (humidity >= 33)
+            return Color.parseColor(average);
+        else
+            return Color.parseColor(below);
+    }
+
+    /**
+     * Used to get a dark background for the circular graph
+     * @param xIn inset value for the x axis
+     * @param yIn inset value for the y axis
+     * @param width background width
+     * @return the {@link SeriesItem} to be applied on the graph
+     */
+    private SeriesItem getBackgroundTrack(float xIn, float yIn, float width) {
+        return new SeriesItem.Builder(Color.argb(255, 218, 218, 218))
+                .setRange(0, 100, 100)
+                .setInset(new PointF(xIn, yIn))
+                .setLineWidth(width)
+                .build();
+    }
+
+    /**
+     * Transforms the data into a seriesItem that can be used in the circular graph
+     * @param xIn inset value for the x axis
+     * @param yIn inset value for the y axis
+     * @param width series width
+     * @param initialValue initial value for the series
+     * @param color color in hexadecimal format
+     * @return the {@link SeriesItem} to be graphed
+     */
+    private SeriesItem createDataSeries(float xIn, float yIn, float width, int initialValue,
+                                        String color) {
+        return new SeriesItem.Builder(Color.parseColor(color))
+                .setRange(0, 100, initialValue)
+                .setInset(new PointF(xIn, yIn))
+                .setLineWidth(width)
+                .build();
+    }
+
+    /**
+     * Calculates based on the temperature different ranges to change the thermometer image
+     * @param percent percentage used for 5 different stages
+     * @return the appropriate {@link android.graphics.drawable.Drawable} for each stage
+     */
+    private int getPercentageTermometer(int percent) {
+        if (percent >= 85)
+            return R.drawable.thermometer;
+        else if (percent >= 60)
+            return R.drawable.thermometer_75;
+        else if (percent >= 35)
+            return R.drawable.thermometer_50;
+        else if (percent >= 10)
+            return R.drawable.thermometer_25;
+        return R.drawable.thermometer_0;
+    }
+
 }
