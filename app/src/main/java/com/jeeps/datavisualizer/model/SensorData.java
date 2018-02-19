@@ -1,5 +1,6 @@
 package com.jeeps.datavisualizer.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +20,10 @@ public class SensorData {
         this.weeklyTemperatureMax = weeklyTemperatureMax;
     }
 
-    public SensorData() {}
+    public SensorData() {
+        weeklyTemperatureMin = new ArrayList<>();
+        weeklyTemperatureMax = new ArrayList<>();
+    }
 
     public double getTemperature() {
         return temperature;
