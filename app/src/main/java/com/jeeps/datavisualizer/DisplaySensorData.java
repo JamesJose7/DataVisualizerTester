@@ -4,14 +4,12 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.db.chart.animation.Animation;
 import com.db.chart.model.BarSet;
@@ -19,25 +17,18 @@ import com.db.chart.model.LineSet;
 import com.db.chart.renderer.AxisRenderer;
 import com.db.chart.view.HorizontalStackBarChartView;
 import com.db.chart.view.LineChartView;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
-import com.jeeps.datavisualizer.controller.FireBaseHelper;
+import com.jeeps.datavisualizer.controller.SensorApiHelper;
 import com.jeeps.datavisualizer.model.SensorData;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DisplaySensorData extends AppCompatActivity implements FireBaseHelper.FireBaseListener {
+public class DisplaySensorData extends AppCompatActivity implements SensorApiHelper.SensorApiListener {
 
     public static final String TAG = "DISPLAY_SENSOR_DATA";
 
@@ -62,7 +53,7 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
     private float[] mWeekTempMin;
     private float[] mWeekTempMinNegative;
 
-    private FireBaseHelper mFireBaseHelper;
+    private SensorApiHelper mSensorApiHelper;
 
     private boolean firstLoad = true;
 
@@ -79,9 +70,9 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
 
         initializeGraphs();
 
-        //Initialize connection with firebase
-        mFireBaseHelper = new FireBaseHelper(this);
-        mFireBaseHelper.openConnection();
+        //Initialize connection with api
+        mSensorApiHelper = new SensorApiHelper(this, this);
+        mSensorApiHelper.openConnection();
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -138,13 +129,14 @@ public class DisplaySensorData extends AppCompatActivity implements FireBaseHelp
     }
 
     /**
-     * Listens to changes in the {@link FireBaseHelper} and updates the view every time the model
+     * Listens to changes in the {@link SensorApiHelper} and updates the view every time the model
      * has been changed
      * @param sensorData Contains the sensor data to be displayed on each graph
-     * @see com.jeeps.datavisualizer.controller.FireBaseHelper.FireBaseListener
+     * @see SensorApiHelper.SensorApiListener
      */
     @Override
     public void update(SensorData sensorData) {
+        Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
         //Current humidity
         int humidity = (int) sensorData.getHumidity();
         //Display percentage

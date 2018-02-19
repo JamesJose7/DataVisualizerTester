@@ -18,6 +18,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import okhttp3.Call;
@@ -35,22 +36,24 @@ import okhttp3.ResponseBody;
 public class SensorApiHelper {
 
     private Activity mActivity;
+    private int mInterval = 20 * 1000;
 
-    private int mInterval = 10 * 1000;
     private Handler mHandler;
     private Runnable mStatusChecker;
     private final OkHttpClient client = new OkHttpClient();
-
     private SensorData mSensorData;
+
     private SensorDataParser mSensorDataParser;
     private SensorApiListener mListener;
-
     private DateFormat mDateFormat = new SimpleDateFormat("YYYY-MM-dd");
 
     private boolean isHumidityCallComplete = false;
     private boolean isTemperatureCallComplete = false;
+    private boolean isWeeklyTempComplete = false;
+    private int sumCheck = 0;
     public static final int HUMIDITY = 0;
     public static final int TEMPERATURE = 1;
+    private static final int WEEKLY_TEMP = 2;
 
     public interface SensorApiListener {
         void update(SensorData sensorData);
@@ -101,18 +104,28 @@ public class SensorApiHelper {
         Request humidityRequest = new Request.Builder()
                 .url(humidityUrl)
                 .build();
-        makeCall(humidityRequest, HUMIDITY);
+        makeCall(humidityRequest, HUMIDITY, 0);
 
         //Temperature callback
         String temperatureUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, currentDate);
         Request temperatureRequest = new Request.Builder()
                 .url(temperatureUrl)
                 .build();
-        makeCall(temperatureRequest, TEMPERATURE);
+        makeCall(temperatureRequest, TEMPERATURE, 0);
+
+        //Weekly temp
+        for (int i = 1; i <= 6; i++) {
+            String previousDate = mDateFormat.format(getPreviousDayDate(i));
+            String weeklyTempUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, previousDate);
+            Request weeklyTempRequest = new Request.Builder()
+                    .url(weeklyTempUrl)
+                    .build();
+            makeCall(weeklyTempRequest, WEEKLY_TEMP, i);
+        }
 
     }
 
-    private void makeCall(Request request, final int type) {
+    private void makeCall(Request request, final int type, final int dateCounter) {
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -140,6 +153,17 @@ public class SensorApiHelper {
                             //Mark completion
                             isTemperatureCallComplete = true;
                             break;
+                        case WEEKLY_TEMP:
+                            //Parse data
+                            mSensorDataParser.parseWeeklyTemp(jsonData, dateCounter);
+
+                            //Mark completion
+                            sumCheck += dateCounter;
+                            if (sumCheck == 21) {
+                                isWeeklyTempComplete = true;
+                                sumCheck = 0;
+                            }
+                            break;
                         default:
                     }
 
@@ -159,7 +183,11 @@ public class SensorApiHelper {
     }
 
     private void checkCompletion() {
-        if (isHumidityCallComplete && isTemperatureCallComplete) {
+        if (isHumidityCallComplete && isTemperatureCallComplete && isWeeklyTempComplete) {
+            isHumidityCallComplete = false;
+            isTemperatureCallComplete = false;
+            isWeeklyTempComplete = false;
+
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -167,5 +195,11 @@ public class SensorApiHelper {
                 }
             });
         }
+    }
+
+    private Date getPreviousDayDate(int previousDays) {
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, - previousDays);
+        return cal.getTime();
     }
 }
