@@ -197,7 +197,7 @@ public class SensorApiHelper {
         }
     }
 
-    private Date getPreviousDayDate(int previousDays) {
+    public static Date getPreviousDayDate(int previousDays) {
         final Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, - previousDays);
         return cal.getTime();

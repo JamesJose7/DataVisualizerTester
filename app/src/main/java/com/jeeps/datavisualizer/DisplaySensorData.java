@@ -23,7 +23,10 @@ import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.jeeps.datavisualizer.controller.SensorApiHelper;
 import com.jeeps.datavisualizer.model.SensorData;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,12 +49,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     ImageView mThermometerImage;
 
     private int humidityDataIndex;
-    private final String[] weekLabels = {"M", "T", "W", "T", "F", "S", "S"};
-    private final float[] weekDefault = {99,99,99,99,99,99,99};
-    private final float[] weekDefaultNeg = {-99,-99,-99,-99,-99,-99,-99};
+    private String[] weekLabels = {"M", "T", "W", "T", "F", "S", "S"};
+    private final float[] weekDefault = {50,50,50,50,50,50,50};
+    private final float[] weekDefaultNeg = {-50,-50,-50,-50,-50,-50,-50};
     private float[] mWeekTempMax;
     private float[] mWeekTempMin;
     private float[] mWeekTempMinNegative;
+
+    private SimpleDateFormat dayFormatter = new SimpleDateFormat("E", new Locale("es", "EC"));
 
     private SensorApiHelper mSensorApiHelper;
 
@@ -95,6 +100,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         humidityDataIndex = mHumidityGraph.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
 
         //Weekly temperature
+        weekLabels = getWeekLabels();
         //Linear graph
         LineSet dataset = new LineSet(weekLabels, weekDefault);
         LineSet dataset2 = new LineSet(weekLabels, weekDefault);
@@ -117,7 +123,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Line chart config
         mWeekTempChart
-                .setStep(10)
+                .setStep(5)
                 .show(new Animation());
 
         //Horizontal bar chart config
@@ -271,6 +277,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         else if (percent >= 10)
             return R.drawable.thermometer_25;
         return R.drawable.thermometer_0;
+    }
+
+    private String[] getWeekLabels() {
+        String[] labels = new String[7];
+        for (int i = 0; i < 7; i++) {
+            Date date = SensorApiHelper.getPreviousDayDate(i);
+            String day = dayFormatter.format(date);
+            //Format it
+            if (day.contains("."))
+                day = day.substring(0, day.length() - 1);
+            day = day.substring(0, 1).toUpperCase() + day.substring(1, day.length()).toLowerCase();
+            labels[i] = day;
+        }
+        return labels;
     }
 
 }
