@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -57,6 +58,8 @@ public class SensorApiHelper {
 
     public interface SensorApiListener {
         void update(SensorData sensorData);
+        void started();
+        void finished();
     }
 
     public SensorApiHelper(SensorApiListener listener, Activity activity) {
@@ -66,34 +69,18 @@ public class SensorApiHelper {
     }
 
     public void openConnection() {
-        mStatusChecker = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    updateStatus();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    mHandler.postDelayed(mStatusChecker, mInterval);
-                }
-            }
-        };
-
-        startRepeatingTask();
+        try {
+            mListener.started();
+            updateStatus();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateStatus() throws Exception {
         mSensorData = new SensorData();
         mSensorDataParser = new SensorDataParser(mSensorData);
         requestApi();
-    }
-
-    public void startRepeatingTask() {
-        mStatusChecker.run();
-    }
-
-    public void stopRepeatingTask() {
-        mHandler.removeCallbacks(mStatusChecker);
     }
 
     public void requestApi() throws Exception {
@@ -194,6 +181,7 @@ public class SensorApiHelper {
                     mListener.update(mSensorDataParser.getSensorData());
                 }
             });
+            mListener.finished();
         }
     }
 

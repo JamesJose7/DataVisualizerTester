@@ -9,6 +9,14 @@
     tools:context="com.jeeps.datavisualizer.DisplaySensorData"
     tools:showIn="@layout/activity_display_sensor_data">
 
+    <ProgressBar
+        android:id="@+id/main_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-6dp"/>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">

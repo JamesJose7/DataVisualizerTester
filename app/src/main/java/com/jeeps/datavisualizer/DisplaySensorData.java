@@ -7,7 +7,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +49,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     TextView mCurrentTempText;
     @BindView(R.id.thermometer_image)
     ImageView mThermometerImage;
+    @BindView(R.id.main_progress_bar)
+    ProgressBar mMainProgressBar;
 
     private int humidityDataIndex;
     private String[] weekLabels = {"M", "T", "W", "T", "F", "S", "S"};
@@ -293,4 +297,13 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         return labels;
     }
 
+    @Override
+    public void started() {
+        mMainProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void finished() {
+        mMainProgressBar.setVisibility(View.INVISIBLE);
+    }
 }
