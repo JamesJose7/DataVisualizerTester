@@ -102,7 +102,7 @@ public class SensorApiHelper {
 
         //Weekly temp
         for (int i = 1; i <= 6; i++) {
-            String previousDate = mDateFormat.format(getPreviousDayDate(i));
+            String previousDate = mDateFormat.format(SensorDataParser.getPreviousDayDate(i));
             String weeklyTempUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, previousDate);
             Request weeklyTempRequest = new Request.Builder()
                     .url(weeklyTempUrl)
@@ -183,11 +183,5 @@ public class SensorApiHelper {
             });
             mListener.finished();
         }
-    }
-
-    public static Date getPreviousDayDate(int previousDays) {
-        final Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, - previousDays);
-        return cal.getTime();
     }
 }

@@ -4,26 +4,25 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.db.chart.animation.Animation;
-import com.db.chart.model.BarSet;
 import com.db.chart.model.LineSet;
-import com.db.chart.renderer.AxisRenderer;
 import com.db.chart.view.HorizontalStackBarChartView;
 import com.db.chart.view.LineChartView;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.jeeps.datavisualizer.controller.SensorApiHelper;
+import com.jeeps.datavisualizer.controller.SensorDataParser;
 import com.jeeps.datavisualizer.model.SensorData;
 
 import java.text.SimpleDateFormat;
@@ -33,6 +32,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class DisplaySensorData extends AppCompatActivity implements SensorApiHelper.SensorApiListener {
 
@@ -46,6 +46,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     TextView mHumidityText;
     @BindView(R.id.week_temp_linechart)
     LineChartView mWeekTempChart;
+    @BindView(R.id.hourly_temp_linechart)
+    LineChartView mHourlyTempChart;
     @BindView(R.id.week_temp_barchart)
     HorizontalStackBarChartView mHorizontalBarChart;
     @BindView(R.id.current_temp_text)
@@ -54,21 +56,31 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     ImageView mThermometerImage;
     @BindView(R.id.main_progress_bar)
     ProgressBar mMainProgressBar;
+    @BindView(R.id.temp_chart_week_button)
+    Button mWeekTempChartButton;
+    @BindView(R.id.temp_chart_hours_button)
+    Button mHoursTempChartButton;
+    @BindView(R.id.temp_chart_compare_button)
+    Button mCompareTempChartButton;
 
     private int humidityDataIndex;
-    private String[] weekLabels = {"M", "T", "W", "T", "F", "S", "S"};
+    private String[] weekLabels;
+    private String[] hourLabels;
     private final float[] weekDefault = {50,50,50,50,50,50,50};
     private final float[] weekDefaultNeg = {-50,-50,-50,-50,-50,-50,-50};
     private float[] mWeekTempMax;
     private float[] mWeekTempMin;
-    private float[] mWeekTempMinNegative;
 
+    private float[] mWeekTempMinNegative;
     private SimpleDateFormat dayFormatter = new SimpleDateFormat("E", new Locale("es", "EC"));
+    private SimpleDateFormat hourFormatter = new SimpleDateFormat("h aa", Locale.US);
 
     private SensorApiHelper mSensorApiHelper;
-
     private boolean firstLoad = true;
-
+    private LineSet mWeekTempSet0;
+    private LineSet mWeekTempSet1;
+    private LineSet mHourTempSet0;
+    private LineSet mHourTempSet1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +91,10 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         ButterKnife.bind(this);
         //Change action bar title
         getSupportActionBar().setTitle("Sensores UTPL");
+
+        //Create chart labels
+        weekLabels = getWeekLabels();
+        hourLabels = getHourLabels();
 
         initializeGraphs();
 
@@ -115,37 +131,35 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         humidityDataIndex = mHumidityGraph.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
 
         //Weekly temperature
-        weekLabels = getWeekLabels();
-        //Linear graph
-        LineSet dataset = new LineSet(weekLabels, weekDefault);
-        LineSet dataset2 = new LineSet(weekLabels, weekDefault);
-        //Horizontal bar chart
-        BarSet barSet = new BarSet(weekLabels, weekDefaultNeg);
-        BarSet barSet2 = new BarSet(weekLabels, weekDefault);
+        mWeekTempSet0 = new LineSet(weekLabels, weekDefault);
+        mWeekTempSet1 = new LineSet(weekLabels, weekDefault);
 
         //Datasets config
-        mWeekTempChart.addData(dataset);
-        mWeekTempChart.addData(dataset2);
+        mWeekTempChart.addData(mWeekTempSet0);
+        mWeekTempChart.addData(mWeekTempSet1);
 
-        mHorizontalBarChart.addData(barSet);
-        mHorizontalBarChart.addData(barSet2);
-
-        dataset.setColor(Color.parseColor("#53c1bd"));
-        dataset2.setColor(Color.parseColor("#5b5cbd"));
-
-        barSet.setColor(Color.parseColor("#53c1bd"));
-        barSet2.setColor(Color.parseColor("#5b5cbd"));
+        mWeekTempSet0.setColor(Color.parseColor("#53c1bd"));
+        mWeekTempSet1.setColor(Color.parseColor("#5b5cbd"));
 
         //Line chart config
         mWeekTempChart
                 .setStep(5)
                 .show(new Animation());
 
-        //Horizontal bar chart config
-        mHorizontalBarChart.setRoundCorners(50);
-        mHorizontalBarChart.setXLabels(AxisRenderer.LabelPosition.NONE);
-        mHorizontalBarChart
-                .setStep(10)
+        //Hourly temperature
+        mHourTempSet0 = new LineSet(hourLabels, weekDefault);
+        mHourTempSet1 = new LineSet(hourLabels, weekDefault);
+
+        //Datasets config
+        mHourlyTempChart.addData(mHourTempSet0);
+        mHourlyTempChart.addData(mHourTempSet1);
+
+        mHourTempSet0.setColor(Color.parseColor("#53c1bd"));
+        mHourTempSet1.setColor(Color.parseColor("#5b5cbd"));
+
+        //Line chart config
+        mHourlyTempChart
+                .setStep(5)
                 .show(new Animation());
     }
 
@@ -210,12 +224,6 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Max temp
         mWeekTempChart.updateValues(1, mWeekTempMax);
         mWeekTempChart.notifyDataUpdate();
-
-        //Horizontal bar chart
-        mHorizontalBarChart.dismissAllTooltips();
-        mHorizontalBarChart.updateValues(0, mWeekTempMinNegative);
-        mHorizontalBarChart.updateValues(1, mWeekTempMax);
-        mHorizontalBarChart.notifyDataUpdate();
     }
 
     private float[] listToArray(List<Float> weeklyTemperature) {
@@ -298,7 +306,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private String[] getWeekLabels() {
         String[] labels = new String[7];
         for (int i = 0; i < 7; i++) {
-            Date date = SensorApiHelper.getPreviousDayDate(i);
+            Date date = SensorDataParser.getPreviousDayDate(i);
             String day = dayFormatter.format(date);
             //Format it
             if (day.contains("."))
@@ -309,13 +317,48 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         return labels;
     }
 
+    public String[] getHourLabels() {
+        String[] labels = new String[7];
+        for (int i = 0; i < 7; i++) {
+            Date date = SensorDataParser.getPreviousHourDate(i);
+            String hour = hourFormatter.format(date);
+            labels[i] = hour;
+        }
+        return labels;
+    }
+
+    private void toggleTempChartButton(boolean activated) {
+        mCompareTempChartButton.setClickable(activated);
+        mHoursTempChartButton.setClickable(activated);
+        mWeekTempChartButton.setClickable(activated);
+    }
+
+    @OnClick(R.id.temp_chart_week_button)
+    protected void changeTempChartToWeek() {
+        mWeekTempChart.setVisibility(View.VISIBLE);
+        mHourlyTempChart.setVisibility(View.INVISIBLE);
+    }
+
+    @OnClick(R.id.temp_chart_hours_button)
+    protected void changeTempChartToHours() {
+        mWeekTempChart.setVisibility(View.INVISIBLE);
+        mHourlyTempChart.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.temp_chart_compare_button)
+    protected void changeTempChartToCompare() {
+
+    }
+
     @Override
     public void started() {
         mMainProgressBar.setVisibility(View.VISIBLE);
+        toggleTempChartButton(false);
     }
 
     @Override
     public void finished() {
         mMainProgressBar.setVisibility(View.INVISIBLE);
+        toggleTempChartButton(true);
     }
 }

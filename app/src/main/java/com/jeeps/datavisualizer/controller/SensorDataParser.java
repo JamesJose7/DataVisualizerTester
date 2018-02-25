@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by jeeps on 2/19/2018.
@@ -87,5 +89,17 @@ public class SensorDataParser {
                 max = currentValue;
         }
         return new float[]{min, max};
+    }
+
+    public static Date getPreviousDayDate(int previousDays) {
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, - previousDays);
+        return cal.getTime();
+    }
+
+    public static Date getPreviousHourDate(int previousHours) {
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.HOUR_OF_DAY, - previousHours);
+        return cal.getTime();
     }
 }
