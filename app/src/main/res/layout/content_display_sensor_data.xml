@@ -17,13 +17,18 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="-6dp"/>
 
-    <ScrollView
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <android.support.v7.widget.CardView
                 android:id="@+id/humidity_layout"
@@ -172,9 +177,11 @@
 
         </RelativeLayout>
 
+        </ScrollView>
 
 
-    </ScrollView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 
 </RelativeLayout>

@@ -5,6 +5,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -37,6 +38,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     public static final String TAG = "DISPLAY_SENSOR_DATA";
 
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.humidity_decoview)
     DecoView mHumidityGraph;
     @BindView(R.id.humidity_text)
@@ -82,6 +85,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Initialize connection with api
         mSensorApiHelper = new SensorApiHelper(this, this);
         mSensorApiHelper.openConnection();
+
+        //Initiales swipe refresher listener
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSensorApiHelper.openConnection();
+            }
+        });
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -186,6 +197,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             updateCharts();
 
         }
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     /**
