@@ -190,7 +190,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mHourlyTempChart.addData(mHourTempSet0);
         //mHourlyTempChart.addData(mHourTempSet1);
 
-        mHourTempSet0.setColor(Color.parseColor("#53c1bd"));
+        mHourTempSet0.setColor(Color.parseColor("#FFD700"));
         mHourTempSet1.setColor(Color.parseColor("#5b5cbd"));
 
         //Line chart config
@@ -206,8 +206,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mCompareTempChart.addData(mCompareTempSet0);
         mCompareTempChart.addData(mCompareTempSet1);
 
-        mCompareTempSet0.setColor(Color.parseColor("#53c1bd"));
-        mCompareTempSet1.setColor(Color.parseColor("#5b5cbd"));
+        mCompareTempSet0.setColor(Color.parseColor("#c15357"));
+        mCompareTempSet1.setColor(Color.parseColor("#53C186"));
 
         //Line chart config
         mCompareTempChart

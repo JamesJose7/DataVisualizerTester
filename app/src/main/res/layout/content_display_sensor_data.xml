@@ -260,6 +260,7 @@
                             android:layout_height="30dp"
                             android:layout_weight="30"
                             android:textAllCaps="false"
+                            android:alpha="0.7"
                             android:src="@drawable/right"/>
 
                         <Button
