@@ -618,13 +618,23 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @Override
     public void started() {
-        mMainProgressBar.setVisibility(View.VISIBLE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMainProgressBar.setVisibility(View.VISIBLE);
+            }
+        });
         toggleTempChartButton(false);
     }
 
     @Override
     public void finished() {
-        mMainProgressBar.setVisibility(View.INVISIBLE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMainProgressBar.setVisibility(View.INVISIBLE);
+            }
+        });
         toggleTempChartButton(true);
     }
 
