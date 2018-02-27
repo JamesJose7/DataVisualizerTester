@@ -9,14 +9,6 @@
     tools:context="com.jeeps.datavisualizer.DisplaySensorData"
     tools:showIn="@layout/activity_display_sensor_data">
 
-    <ProgressBar
-        android:id="@+id/main_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:indeterminate="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-6dp"/>
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
@@ -87,7 +79,7 @@
                 android:layout_below="@id/humidity_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="120dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 app:cardElevation="4dp">
@@ -241,6 +233,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/compare_temp_controls_container"
                     android:layout_below="@id/temp_chart_controls_container"
+                    android:visibility="gone"
                     android:paddingLeft="15dp"
                     android:paddingRight="15dp"
                     android:layout_marginTop="5dp"
@@ -319,6 +312,14 @@
 
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <ProgressBar
+        android:id="@+id/main_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-6dp"/>
 
 
 </RelativeLayout>

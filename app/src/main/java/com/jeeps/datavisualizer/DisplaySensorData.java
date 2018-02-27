@@ -5,22 +5,22 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.hardware.Sensor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.db.chart.animation.Animation;
 import com.db.chart.model.LineSet;
-import com.db.chart.view.HorizontalStackBarChartView;
 import com.db.chart.view.LineChartView;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
@@ -67,6 +67,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     LineChartView mCompareTempChart;
     @BindView(R.id.current_temp_text)
     TextView mCurrentTempText;
+    @BindView(R.id.last_7_days_text)
+    TextView mTempChartDescriptionText;
     @BindView(R.id.thermometer_image)
     ImageView mThermometerImage;
     @BindView(R.id.main_progress_bar)
@@ -81,6 +83,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     Button mChooseTempDateXButton;
     @BindView(R.id.temp_choose_y_day)
     Button mChooseTempDateYButton;
+    @BindView(R.id.compare_temp_controls_container)
+    RelativeLayout mTempCompareControlsLayout;
     @BindView(R.id.compare_loading_progressbar)
     ProgressBar mTempCompareProgressBar;
 
@@ -458,6 +462,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         set.start();
     }
 
+    private void showTempCompareControlls() {
+        mTempCompareControlsLayout.setScaleY(0);
+        mTempCompareControlsLayout.setAlpha(0);
+        mTempCompareControlsLayout.setVisibility(View.VISIBLE);
+
+        ObjectAnimator scaley = ObjectAnimator.ofFloat(mTempCompareControlsLayout, "scaleY", 0, 1);
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(mTempCompareControlsLayout, "alpha", 0, 1);
+        AnimatorSet set = new AnimatorSet();
+        set.setInterpolator(new AccelerateDecelerateInterpolator());
+        set.setDuration(150);
+        set.playTogether(scaley, fadeIn);
+        set.start();
+    }
+
     private void createDatePicker() {
         Calendar now = Calendar.getInstance();
         DatePickerDialog dpd = DatePickerDialog.newInstance(
@@ -486,6 +504,10 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_week_button)
     protected void changeTempChartToWeek() {
+        //Hide compare controlls
+        mTempCompareControlsLayout.setVisibility(View.GONE);
+
+        mTempChartDescriptionText.setText("Últimos 7 días");
         if (currentTempGraph != TEMP_WEEK_GRAPH) {
             if (currentTempGraph == TEMP_HOURS_GRAPH)
                 fadeInOutViews(mHourlyTempChart, mWeekTempChart);
@@ -499,6 +521,10 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_hours_button)
     protected void changeTempChartToHours() {
+        //Hide compare controlls
+        mTempCompareControlsLayout.setVisibility(View.GONE);
+
+        mTempChartDescriptionText.setText("Últimas 7 horas");
         if (currentTempGraph != TEMP_HOURS_GRAPH) {
             if (currentTempGraph == TEMP_WEEK_GRAPH)
                 fadeInOutViews(mWeekTempChart, mHourlyTempChart);
@@ -512,8 +538,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_compare_button)
     protected void changeTempChartToCompare() {
+        mTempChartDescriptionText.setText("Comparar días");
 
         if (currentTempGraph != TEMP_COMPARE_GRAPH) {
+            //Show controlls
+            showTempCompareControlls();
             if (currentTempGraph == TEMP_WEEK_GRAPH)
                 fadeInOutViews(mWeekTempChart, mCompareTempChart);
             else
