@@ -58,7 +58,7 @@ public class SensorDataParser {
         SimpleDateFormat hourFormatter = new SimpleDateFormat("H", Locale.US);
         //Get last 7 hours
         int[] lastHours = new int[7];
-        Float[] hourlyTemperature = new Float[7];
+        float[] hourlyTemperature = new float[7];
         for (int i = 0; i < lastHours.length; i++) {
             String hour = hourFormatter.format(getPreviousHourDate(i));
             lastHours[i] = Integer.parseInt(hour);
@@ -78,7 +78,10 @@ public class SensorDataParser {
                     hourlyTemperature[j] = hourTemperature;
             }
         }
-        mSensorData.setHourlyTemperature(Arrays.asList(hourlyTemperature));
+        Float[] newHourlyTemp = new Float[hourlyTemperature.length];
+        for (int i = 0; i < hourlyTemperature.length; i++)
+            newHourlyTemp[i] = hourlyTemperature[i];
+        mSensorData.setHourlyTemperature(Arrays.asList(newHourlyTemp));
     }
 
     public void parseWeeklyTemp(String jsonData, int dateCounter) throws JSONException {
