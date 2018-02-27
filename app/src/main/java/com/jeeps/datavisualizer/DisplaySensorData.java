@@ -28,12 +28,15 @@ import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.jeeps.datavisualizer.controller.SensorApiHelper;
 import com.jeeps.datavisualizer.controller.SensorDataParser;
 import com.jeeps.datavisualizer.model.SensorData;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,12 +44,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class DisplaySensorData extends AppCompatActivity implements SensorApiHelper.SensorApiListener {
+public class DisplaySensorData extends AppCompatActivity implements SensorApiHelper.SensorApiListener, DatePickerDialog.OnDateSetListener {
 
     public static final String TAG = "DISPLAY_SENSOR_DATA";
     public static final int TEMP_WEEK_GRAPH = 0;
     public static final int TEMP_HOURS_GRAPH = 1;
     public static final int TEMP_COMPARE_GRAPH = 2;
+    private static final int TEMP_DATE_X = 0;
+    private static final int TEMP_DATE_Y = 1;
 
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -72,6 +77,12 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     Button mHoursTempChartButton;
     @BindView(R.id.temp_chart_compare_button)
     Button mCompareTempChartButton;
+    @BindView(R.id.temp_choose_x_day)
+    Button mChooseTempDateXButton;
+    @BindView(R.id.temp_choose_y_day)
+    Button mChooseTempDateYButton;
+    @BindView(R.id.compare_loading_progressbar)
+    ProgressBar mTempCompareProgressBar;
 
     private int humidityDataIndex;
     private String[] weekLabels;
@@ -87,6 +98,10 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private SensorApiHelper mSensorApiHelper;
     private boolean firstLoad = true;
     private int currentTempGraph = TEMP_WEEK_GRAPH;
+    private int choosingDate;
+    private Date tempCompareDateX;
+    private Date tempCompareDateY;
+
     private LineSet mWeekTempSet0;
     private LineSet mWeekTempSet1;
     private LineSet mHourTempSet0;
@@ -107,6 +122,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Create chart labels
         weekLabels = getWeekLabels();
         hourLabels = getHourLabels();
+
+        //Compare buttons
+        tempCompareDateX = new Date();
+        tempCompareDateY = SensorDataParser.getPreviousDayDate(1);
+        changeCompareButtonsText();
 
         initializeGraphs();
 
@@ -200,6 +220,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @Override
     public void update(SensorData sensorData) {
         Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+        //Compare temp
+        getComparisonData(tempCompareDateX, tempCompareDateY);
         //Current humidity
         int humidity = (int) sensorData.getHumidity();
         //Display percentage
@@ -259,6 +281,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     }
 
     private void getComparisonData(final Date dateX, final Date dateY) {
+        mTempCompareProgressBar.setVisibility(View.VISIBLE);
         //Compare temp chart
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -274,6 +297,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            mTempCompareProgressBar.setVisibility(View.INVISIBLE);
                             updateCompareCharts(dataTempX, dataTempY);
                         }
                     });
@@ -434,6 +458,26 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         set.start();
     }
 
+    private void createDatePicker() {
+        Calendar now = Calendar.getInstance();
+        DatePickerDialog dpd = DatePickerDialog.newInstance(
+                this,
+                now.get(Calendar.YEAR),
+                now.get(Calendar.MONTH),
+                now.get(Calendar.DAY_OF_MONTH)
+        );
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        dpd.setMaxDate(cal);
+        dpd.show(getFragmentManager(), "Datepickerdialog");
+    }
+
+    private void changeCompareButtonsText() {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        mChooseTempDateXButton.setText(dateFormatter.format(tempCompareDateX));
+        mChooseTempDateYButton.setText(dateFormatter.format(tempCompareDateY));
+    }
+
     private void toggleTempChartButton(boolean activated) {
         mCompareTempChartButton.setClickable(activated);
         mHoursTempChartButton.setClickable(activated);
@@ -468,7 +512,6 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_compare_button)
     protected void changeTempChartToCompare() {
-        getComparisonData(SensorDataParser.getPreviousDayDate(1), SensorDataParser.getPreviousDayDate(2));
 
         if (currentTempGraph != TEMP_COMPARE_GRAPH) {
             if (currentTempGraph == TEMP_WEEK_GRAPH)
@@ -481,6 +524,23 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         currentTempGraph = TEMP_COMPARE_GRAPH;
     }
 
+    @OnClick(R.id.temp_choose_x_day)
+    protected void chooseXTemp() {
+        choosingDate = TEMP_DATE_X;
+        createDatePicker();
+    }
+
+    @OnClick(R.id.temp_choose_y_day)
+    protected void chooseYTemp() {
+        choosingDate = TEMP_DATE_Y;
+        createDatePicker();
+    }
+
+    @OnClick(R.id.temp_compare_button)
+    protected void compareTemps() {
+        getComparisonData(tempCompareDateX, tempCompareDateY);
+    }
+
     @Override
     public void started() {
         mMainProgressBar.setVisibility(View.VISIBLE);
@@ -491,5 +551,16 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     public void finished() {
         mMainProgressBar.setVisibility(View.INVISIBLE);
         toggleTempChartButton(true);
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        Date date = new GregorianCalendar(year, monthOfYear, dayOfMonth).getTime();
+        if (choosingDate == TEMP_DATE_X)
+            tempCompareDateX = date;
+        else if (choosingDate == TEMP_DATE_Y)
+            tempCompareDateY = date;
+
+        changeCompareButtonsText();
     }
 }
