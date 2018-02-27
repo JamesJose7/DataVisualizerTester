@@ -70,6 +70,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private final float[] weekDefaultNeg = {-50,-50,-50,-50,-50,-50,-50};
     private float[] mWeekTempMax;
     private float[] mWeekTempMin;
+    private float[] mHourlyTemp;
 
     private float[] mWeekTempMinNegative;
     private SimpleDateFormat dayFormatter = new SimpleDateFormat("E", new Locale("es", "EC"));
@@ -152,7 +153,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Datasets config
         mHourlyTempChart.addData(mHourTempSet0);
-        mHourlyTempChart.addData(mHourTempSet1);
+        //mHourlyTempChart.addData(mHourTempSet1);
 
         mHourTempSet0.setColor(Color.parseColor("#53c1bd"));
         mHourTempSet1.setColor(Color.parseColor("#5b5cbd"));
@@ -192,10 +193,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Arrays needed for both the linear and bar chart
         mWeekTempMin = listToArray(sensorData.getWeeklyTemperatureMin());
         mWeekTempMax = listToArray(sensorData.getWeeklyTemperatureMax());
-        //Convert min temperature array to negative values for the left portion of the horizontal bar chart
-        mWeekTempMinNegative = listToArray(sensorData.getWeeklyTemperatureMin());
-        for (int i = 0; i < mWeekTempMinNegative.length; i++)
-            mWeekTempMinNegative[i] *= -1;
+
+        //Hourly temperature
+        mHourlyTemp = listToArray(sensorData.getHourlyTemperature());
 
         //Delay the first data load on graphs since they take some time to initialize properly
         if (firstLoad) {
@@ -224,6 +224,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Max temp
         mWeekTempChart.updateValues(1, mWeekTempMax);
         mWeekTempChart.notifyDataUpdate();
+
+        //Hourly
+        mHourlyTempChart.dismissAllTooltips();
+        mHourlyTempChart.updateValues(0, mHourlyTemp);
+        mHourlyTempChart.notifyDataUpdate();
     }
 
     private float[] listToArray(List<Float> weeklyTemperature) {

@@ -6,9 +6,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by jeeps on 2/19/2018.
@@ -51,6 +53,32 @@ public class SensorDataParser {
         //Weekly temp
         weeklyTempMin[0] = minMax[0];
         weeklyTempMax[0] = minMax[1];
+
+        //Get hourly temperature
+        SimpleDateFormat hourFormatter = new SimpleDateFormat("H", Locale.US);
+        //Get last 7 hours
+        int[] lastHours = new int[7];
+        Float[] hourlyTemperature = new Float[7];
+        for (int i = 0; i < lastHours.length; i++) {
+            String hour = hourFormatter.format(getPreviousHourDate(i));
+            lastHours[i] = Integer.parseInt(hour);
+        }
+        //Get the temperature of each hour
+        for (int i = 0; i < data.length(); i++) {
+            JSONObject jsonObject = data.getJSONObject(i);
+            //Get current temperature
+            Float hourTemperature = Float.parseFloat(jsonObject.getString("valor"));
+            //Get saved hour
+            String time = jsonObject.getString("hora");
+            int hour = Integer.parseInt(time.split(":")[0]);
+
+            //Save each temperature on it's according hour
+            for (int j = 0; j < hourlyTemperature.length; j++) {
+                if (hour == lastHours[j])
+                    hourlyTemperature[j] = hourTemperature;
+            }
+        }
+        mSensorData.setHourlyTemperature(Arrays.asList(hourlyTemperature));
     }
 
     public void parseWeeklyTemp(String jsonData, int dateCounter) throws JSONException {

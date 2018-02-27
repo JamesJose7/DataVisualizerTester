@@ -12,6 +12,7 @@ public class SensorData {
     private double humidity;
     private List<Float> weeklyTemperatureMin;
     private List<Float> weeklyTemperatureMax;
+    private List<Float> hourlyTemperature;
 
     public SensorData(double temperature, double humidity, List<Float> weeklyTemperatureMin, List<Float> weeklyTemperatureMax) {
         this.temperature = temperature;
@@ -23,6 +24,7 @@ public class SensorData {
     public SensorData() {
         weeklyTemperatureMin = new ArrayList<>();
         weeklyTemperatureMax = new ArrayList<>();
+        hourlyTemperature = new ArrayList<>();
     }
 
     public double getTemperature() {
@@ -55,6 +57,14 @@ public class SensorData {
 
     public void setWeeklyTemperatureMax(List<Float> weeklyTemperatureMax) {
         this.weeklyTemperatureMax = weeklyTemperatureMax;
+    }
+
+    public List<Float> getHourlyTemperature() {
+        return hourlyTemperature;
+    }
+
+    public void setHourlyTemperature(List<Float> hourlyTemperature) {
+        this.hourlyTemperature = hourlyTemperature;
     }
 }
 
