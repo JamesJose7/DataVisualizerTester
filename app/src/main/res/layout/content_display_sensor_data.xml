@@ -171,6 +171,18 @@
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="15dp"/>
 
+                <com.db.chart.view.LineChartView
+                    xmlns:chart="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/compare_temp_linechart"
+                    android:visibility="invisible"
+                    android:layout_width="match_parent"
+                    android:layout_below="@id/last_7_days_text"
+                    android:layout_height="180dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -2,6 +2,7 @@ package com.jeeps.datavisualizer.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.Sensor;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -41,7 +43,7 @@ public class SensorApiHelper {
 
     private Handler mHandler;
     private Runnable mStatusChecker;
-    private final OkHttpClient client = new OkHttpClient();
+    private OkHttpClient client = new OkHttpClient();
     private SensorData mSensorData;
 
     private SensorDataParser mSensorDataParser;
@@ -66,6 +68,11 @@ public class SensorApiHelper {
         mListener = listener;
         mHandler = new Handler();
         mActivity = activity;
+        client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
     }
 
     public void openConnection() {
@@ -110,6 +117,27 @@ public class SensorApiHelper {
             makeCall(weeklyTempRequest, WEEKLY_TEMP, i);
         }
 
+    }
+
+    public SensorData requestPreviousDayData(Date date) throws IOException, JSONException {
+        String formattedDate = mDateFormat.format(date);
+
+        //New sensor data to be returned
+        SensorData sensorData = new SensorData();
+        SensorDataParser sensorDataParser = new SensorDataParser(sensorData);
+
+        //Temperature callback
+        String temperatureUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, formattedDate);
+        Request request = new Request.Builder()
+                .url(temperatureUrl)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            sensorDataParser.parseTemperature(response.body().string());
+            return sensorDataParser.getSensorData();
+        }
     }
 
     private void makeCall(Request request, final int type, final int dateCounter) {

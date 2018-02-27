@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.hardware.Sensor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -28,6 +29,9 @@ import com.jeeps.datavisualizer.controller.SensorApiHelper;
 import com.jeeps.datavisualizer.controller.SensorDataParser;
 import com.jeeps.datavisualizer.model.SensorData;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -54,8 +58,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     LineChartView mWeekTempChart;
     @BindView(R.id.hourly_temp_linechart)
     LineChartView mHourlyTempChart;
-    @BindView(R.id.week_temp_barchart)
-    HorizontalStackBarChartView mHorizontalBarChart;
+    @BindView(R.id.compare_temp_linechart)
+    LineChartView mCompareTempChart;
     @BindView(R.id.current_temp_text)
     TextView mCurrentTempText;
     @BindView(R.id.thermometer_image)
@@ -87,6 +91,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private LineSet mWeekTempSet1;
     private LineSet mHourTempSet0;
     private LineSet mHourTempSet1;
+    private LineSet mCompareTempSet0;
+    private LineSet mCompareTempSet1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +142,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Create data series track
         humidityDataIndex = mHumidityGraph.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
 
-        //Weekly temperature
+        /* ******Weekly temperature******* */
         mWeekTempSet0 = new LineSet(weekLabels, weekDefault);
         mWeekTempSet1 = new LineSet(weekLabels, weekDefault);
 
@@ -152,7 +158,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                 .setStep(5)
                 .show(new Animation());
 
-        //Hourly temperature
+        /* ******Hourly temperature******* */
         mHourTempSet0 = new LineSet(hourLabels, weekDefault);
         mHourTempSet1 = new LineSet(hourLabels, weekDefault);
 
@@ -165,6 +171,22 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Line chart config
         mHourlyTempChart
+                .setStep(5)
+                .show(new Animation());
+
+        /* ******Compare temperature******* */
+        mCompareTempSet0 = new LineSet(hourLabels, weekDefault);
+        mCompareTempSet1 = new LineSet(hourLabels, weekDefault);
+
+        //Datasets config
+        mCompareTempChart.addData(mCompareTempSet0);
+        mCompareTempChart.addData(mCompareTempSet1);
+
+        mCompareTempSet0.setColor(Color.parseColor("#53c1bd"));
+        mCompareTempSet1.setColor(Color.parseColor("#5b5cbd"));
+
+        //Line chart config
+        mCompareTempChart
                 .setStep(5)
                 .show(new Animation());
     }
@@ -234,6 +256,47 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mHourlyTempChart.dismissAllTooltips();
         mHourlyTempChart.updateValues(0, mHourlyTemp);
         mHourlyTempChart.notifyDataUpdate();
+    }
+
+    private void getComparisonData(final Date dateX, final Date dateY) {
+        //Compare temp chart
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SensorData dataX = mSensorApiHelper.requestPreviousDayData(dateX);
+                    SensorData dataY = mSensorApiHelper.requestPreviousDayData(dateY);
+
+                    //Get data arrays
+                    final float[] dataTempX = listToArray(dataX.getHourlyTemperature());
+                    final float[] dataTempY = listToArray(dataY.getHourlyTemperature());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateCompareCharts(dataTempX, dataTempY);
+                        }
+                    });
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    private void updateCompareCharts(float[] tempX, float[] tempY) {
+        //Temp chart
+        mCompareTempChart.dismissAllTooltips();
+        //Data X
+        mCompareTempChart.updateValues(0, tempX);
+        //Data Y
+        mCompareTempChart.updateValues(1, tempY);
+        mCompareTempChart.notifyDataUpdate();
     }
 
     private float[] listToArray(List<Float> weeklyTemperature) {
@@ -379,8 +442,12 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_week_button)
     protected void changeTempChartToWeek() {
-        if (currentTempGraph != TEMP_WEEK_GRAPH)
-            fadeInOutViews(mHourlyTempChart, mWeekTempChart);
+        if (currentTempGraph != TEMP_WEEK_GRAPH) {
+            if (currentTempGraph == TEMP_HOURS_GRAPH)
+                fadeInOutViews(mHourlyTempChart, mWeekTempChart);
+            else
+                fadeInOutViews(mCompareTempChart, mWeekTempChart);
+        }
 
         //Set current graph flag
         currentTempGraph = TEMP_WEEK_GRAPH;
@@ -388,8 +455,12 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_hours_button)
     protected void changeTempChartToHours() {
-        if (currentTempGraph != TEMP_HOURS_GRAPH)
-            fadeInOutViews(mWeekTempChart, mHourlyTempChart);
+        if (currentTempGraph != TEMP_HOURS_GRAPH) {
+            if (currentTempGraph == TEMP_WEEK_GRAPH)
+                fadeInOutViews(mWeekTempChart, mHourlyTempChart);
+            else
+                fadeInOutViews(mCompareTempChart, mHourlyTempChart);
+        }
 
         //Set current graph flag
         currentTempGraph = TEMP_HOURS_GRAPH;
@@ -397,6 +468,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_compare_button)
     protected void changeTempChartToCompare() {
+        getComparisonData(SensorDataParser.getPreviousDayDate(1), SensorDataParser.getPreviousDayDate(2));
+
+        if (currentTempGraph != TEMP_COMPARE_GRAPH) {
+            if (currentTempGraph == TEMP_WEEK_GRAPH)
+                fadeInOutViews(mWeekTempChart, mCompareTempChart);
+            else
+                fadeInOutViews(mHourlyTempChart, mCompareTempChart);
+        }
 
         //Set current graph flag
         currentTempGraph = TEMP_COMPARE_GRAPH;
