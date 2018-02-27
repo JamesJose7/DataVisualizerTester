@@ -101,7 +101,8 @@
                     android:id="@+id/temperature_layout"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
-                    android:layout_marginTop="40dp">
+                    android:layout_marginTop="50dp"
+                    android:layout_marginBottom="10dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -139,6 +140,17 @@
                     android:layout_marginLeft="10dp"
                     android:layout_below="@id/temperature_layout"
                     android:text="Últimos 7 días"/>
+
+                <ImageButton
+                    android:id="@+id/fill_graph_button"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:background="@null"
+                    android:src="@drawable/dark_graph"
+                    android:scaleType="centerInside"
+                    android:layout_above="@id/week_temp_linechart"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="15dp"/>
 
                 <com.db.chart.view.LineChartView
                     xmlns:chart="http://schemas.android.com/apk/res-auto"

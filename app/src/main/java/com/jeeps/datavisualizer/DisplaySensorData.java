@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -87,6 +88,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     RelativeLayout mTempCompareControlsLayout;
     @BindView(R.id.compare_loading_progressbar)
     ProgressBar mTempCompareProgressBar;
+    @BindView(R.id.fill_graph_button)
+    ImageButton mFillTempChartLinesButton;
 
     private int humidityDataIndex;
     private String[] weekLabels;
@@ -101,6 +104,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     private SensorApiHelper mSensorApiHelper;
     private boolean firstLoad = true;
+    private boolean fillTempChartLines = false;
     private int currentTempGraph = TEMP_WEEK_GRAPH;
     private int choosingDate;
     private Date tempCompareDateX;
@@ -500,6 +504,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mCompareTempChartButton.setClickable(activated);
         mHoursTempChartButton.setClickable(activated);
         mWeekTempChartButton.setClickable(activated);
+
+        mFillTempChartLinesButton.setClickable(activated);
     }
 
     @OnClick(R.id.temp_chart_week_button)
@@ -568,6 +574,46 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @OnClick(R.id.temp_compare_button)
     protected void compareTemps() {
         getComparisonData(tempCompareDateX, tempCompareDateY);
+    }
+
+    @OnClick(R.id.fill_graph_button)
+    protected void fillTempChartLines() {
+        if (!fillTempChartLines) {
+            mWeekTempSet0.setFill(Color.parseColor("#5553c1bd"));
+            mWeekTempSet1.setFill(Color.parseColor("#555b5cbd"));
+            mHourTempSet0.setFill(Color.parseColor("#55FFD700"));
+            mHourTempSet1.setFill(Color.parseColor("#5553c1bd"));
+            mCompareTempSet0.setFill(Color.parseColor("#55c15357"));
+            mCompareTempSet1.setFill(Color.parseColor("#5553C186"));
+
+            //Update graphs
+            mWeekTempChart.show();
+            mHourlyTempChart.show();
+            mCompareTempChart.show();
+
+            //Change button
+            mFillTempChartLinesButton.setImageResource(R.drawable.color_graph);
+
+            fillTempChartLines = true;
+        } else {
+            mWeekTempSet0.setFill(Color.parseColor("#0053c1bd"));
+            mWeekTempSet1.setFill(Color.parseColor("#005b5cbd"));
+            mHourTempSet0.setFill(Color.parseColor("#00FFD700"));
+            mHourTempSet1.setFill(Color.parseColor("#0053c1bd"));
+            mCompareTempSet0.setFill(Color.parseColor("#00c15357"));
+            mCompareTempSet1.setFill(Color.parseColor("#0053C186"));
+            mWeekTempChart.show();
+
+            //Update graphs
+            mWeekTempChart.show();
+            mHourlyTempChart.show();
+            mCompareTempChart.show();
+
+            //Change button
+            mFillTempChartLinesButton.setImageResource(R.drawable.dark_graph);
+
+            fillTempChartLines = false;
+        }
     }
 
     @Override
