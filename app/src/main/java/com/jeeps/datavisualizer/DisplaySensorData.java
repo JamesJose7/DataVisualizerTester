@@ -1,5 +1,8 @@
 package com.jeeps.datavisualizer;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -37,6 +40,9 @@ import butterknife.OnClick;
 public class DisplaySensorData extends AppCompatActivity implements SensorApiHelper.SensorApiListener {
 
     public static final String TAG = "DISPLAY_SENSOR_DATA";
+    public static final int TEMP_WEEK_GRAPH = 0;
+    public static final int TEMP_HOURS_GRAPH = 1;
+    public static final int TEMP_COMPARE_GRAPH = 2;
 
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -66,18 +72,17 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private int humidityDataIndex;
     private String[] weekLabels;
     private String[] hourLabels;
-    private final float[] weekDefault = {50,50,50,50,50,50,50};
-    private final float[] weekDefaultNeg = {-50,-50,-50,-50,-50,-50,-50};
+    private final float[] weekDefault = {40,40,40,40,40,40,40};
     private float[] mWeekTempMax;
     private float[] mWeekTempMin;
     private float[] mHourlyTemp;
 
-    private float[] mWeekTempMinNegative;
     private SimpleDateFormat dayFormatter = new SimpleDateFormat("E", new Locale("es", "EC"));
     private SimpleDateFormat hourFormatter = new SimpleDateFormat("h aa", Locale.US);
 
     private SensorApiHelper mSensorApiHelper;
     private boolean firstLoad = true;
+    private int currentTempGraph = TEMP_WEEK_GRAPH;
     private LineSet mWeekTempSet0;
     private LineSet mWeekTempSet1;
     private LineSet mHourTempSet0;
@@ -297,11 +302,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
      * @return the appropriate {@link android.graphics.drawable.Drawable} for each stage
      */
     private int getPercentageTermometer(int percent) {
-        if (percent >= 85)
+        if (percent >= 40)
             return R.drawable.thermometer;
-        else if (percent >= 60)
+        else if (percent >= 30)
             return R.drawable.thermometer_75;
-        else if (percent >= 35)
+        else if (percent >= 20)
             return R.drawable.thermometer_50;
         else if (percent >= 10)
             return R.drawable.thermometer_25;
@@ -332,6 +337,40 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         return labels;
     }
 
+    private void fadeInOutViews(final View exitingView, final View enteringView) {
+        //Fade in and out two views
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(exitingView, "alpha", 1, 0);
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(enteringView, "alpha", 0, 1);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(fadeOut, fadeIn);
+
+        //Hide and show views
+        set.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                //Set alpha value to zero and show entering view
+                enteringView.setAlpha(0);
+                enteringView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                //Set alpha value to 1 and hide exiting view
+                exitingView.setVisibility(View.INVISIBLE);
+                exitingView.setAlpha(1);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {}
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+
+        set.start();
+    }
+
     private void toggleTempChartButton(boolean activated) {
         mCompareTempChartButton.setClickable(activated);
         mHoursTempChartButton.setClickable(activated);
@@ -340,19 +379,27 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_week_button)
     protected void changeTempChartToWeek() {
-        mWeekTempChart.setVisibility(View.VISIBLE);
-        mHourlyTempChart.setVisibility(View.INVISIBLE);
+        if (currentTempGraph != TEMP_WEEK_GRAPH)
+            fadeInOutViews(mHourlyTempChart, mWeekTempChart);
+
+        //Set current graph flag
+        currentTempGraph = TEMP_WEEK_GRAPH;
     }
 
     @OnClick(R.id.temp_chart_hours_button)
     protected void changeTempChartToHours() {
-        mWeekTempChart.setVisibility(View.INVISIBLE);
-        mHourlyTempChart.setVisibility(View.VISIBLE);
+        if (currentTempGraph != TEMP_HOURS_GRAPH)
+            fadeInOutViews(mWeekTempChart, mHourlyTempChart);
+
+        //Set current graph flag
+        currentTempGraph = TEMP_HOURS_GRAPH;
     }
 
     @OnClick(R.id.temp_chart_compare_button)
     protected void changeTempChartToCompare() {
 
+        //Set current graph flag
+        currentTempGraph = TEMP_COMPARE_GRAPH;
     }
 
     @Override
