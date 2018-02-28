@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,6 +16,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -91,6 +93,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.fill_graph_button)
     ImageButton mFillTempChartLinesButton;
 
+    /* Graph legend */
+    @BindView(R.id.temp_legend_a_container)
+    LinearLayout mTempLegendAContainer;
+    @BindView(R.id.temp_legend_b_container)
+    LinearLayout mTempLegendBContainer;
+    @BindView(R.id.temp_legend_a_view)
+    TextView mTempLegendAView;
+    @BindView(R.id.temp_legend_a)
+    TextView mTempLegendA;
+    @BindView(R.id.temp_legend_b_view)
+    TextView mTempLegendBView;
+    @BindView(R.id.temp_legend_b)
+    TextView mTempLegendB;
+
     private int humidityDataIndex;
     private String[] weekLabels;
     private String[] hourLabels;
@@ -165,6 +181,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
      * Initializes all graphs with default values on data sets and applies custom styles
      */
     private void initializeGraphs() {
+        //Change legend
+        showTempLegend(TEMP_WEEK_GRAPH);
+
         //Humidity chart
         mHumidityGraph.addSeries(getBackgroundTrack(0, 0, 100f));
         //Create data series track
@@ -514,6 +533,40 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mFillTempChartLinesButton.setClickable(activated);
     }
 
+    private void showTempLegend(int type) {
+        mTempLegendBContainer.setVisibility(View.VISIBLE);
+        switch (type) {
+            case TEMP_WEEK_GRAPH:
+                changeTintBackground(mTempLegendAView, "#53c1bd");
+                changeTintBackground(mTempLegendBView, "#5b5cbd");
+
+                //Text
+                mTempLegendA.setText("Mínima");
+                mTempLegendB.setText("Máxima");
+                break;
+            case TEMP_HOURS_GRAPH:
+                changeTintBackground(mTempLegendAView, "#FFD700");
+                mTempLegendBContainer.setVisibility(View.INVISIBLE);
+
+                //Text
+                mTempLegendA.setText("Promedio");
+                break;
+            case TEMP_COMPARE_GRAPH:
+                changeTintBackground(mTempLegendAView, "#c15357");
+                changeTintBackground(mTempLegendBView, "#53C186");
+
+                //Text
+                mTempLegendA.setText("Día 1");
+                mTempLegendB.setText("Día 2");
+                break;
+            default:
+        }
+    }
+
+    private void changeTintBackground(View view, String color) {
+        view.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_ATOP);
+    }
+
     @OnClick(R.id.temp_chart_week_button)
     protected void changeTempChartToWeek() {
         //Hide compare controlls
@@ -526,6 +579,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             else
                 fadeInOutViews(mCompareTempChart, mWeekTempChart);
         }
+
+        //Change legend
+        showTempLegend(TEMP_WEEK_GRAPH);
 
         //Set current graph flag
         currentTempGraph = TEMP_WEEK_GRAPH;
@@ -544,6 +600,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                 fadeInOutViews(mCompareTempChart, mHourlyTempChart);
         }
 
+        //Change legend
+        showTempLegend(TEMP_HOURS_GRAPH);
+
         //Set current graph flag
         currentTempGraph = TEMP_HOURS_GRAPH;
     }
@@ -560,6 +619,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             else
                 fadeInOutViews(mHourlyTempChart, mCompareTempChart);
         }
+
+        //Change legend
+        showTempLegend(TEMP_COMPARE_GRAPH);
 
         //Set current graph flag
         currentTempGraph = TEMP_COMPARE_GRAPH;

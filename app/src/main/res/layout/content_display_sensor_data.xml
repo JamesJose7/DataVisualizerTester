@@ -143,8 +143,8 @@
 
                 <ImageButton
                     android:id="@+id/fill_graph_button"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
                     android:background="@null"
                     android:src="@drawable/dark_graph"
                     android:scaleType="centerInside"
@@ -187,6 +187,68 @@
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="15dp"/>
 
+                <LinearLayout
+                    android:id="@+id/temp_graph_legend_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/compare_temp_linechart"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:weightSum="100"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/temp_legend_a_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="50"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/temp_legend_a_view"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/round_background"/>
+
+                        <TextView
+                            android:id="@+id/temp_legend_a"
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp"
+                            android:gravity="center_vertical"
+                            android:layout_marginLeft="8dp"
+                            android:text="-"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/temp_legend_b_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="50"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/temp_legend_b_view"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/round_background"/>
+
+                        <TextView
+                            android:id="@+id/temp_legend_b"
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp"
+                            android:gravity="center_vertical"
+                            android:layout_marginLeft="8dp"
+                            android:text="-"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
                 <ProgressBar
                     android:id="@+id/compare_loading_progressbar"
                     android:layout_width="20dp"
@@ -202,7 +264,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/temp_chart_controls_container"
-                    android:layout_below="@id/week_temp_linechart"
+                    android:layout_below="@id/temp_graph_legend_container"
                     android:paddingLeft="15dp"
                     android:paddingRight="15dp"
                     android:weightSum="90"
