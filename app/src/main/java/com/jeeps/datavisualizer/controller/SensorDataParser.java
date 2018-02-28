@@ -31,7 +31,7 @@ public class SensorDataParser {
         //Get data array
         JSONArray data = mainObject.getJSONArray("data");
         //Get humidity from first item
-        String humidityValue = data.getJSONObject(0).getString("valor");
+        String humidityValue = data.getJSONObject(data.length() - 1).getString("valor");
         double humidity = Double.parseDouble(humidityValue);
 
         //Set value to object
@@ -43,7 +43,7 @@ public class SensorDataParser {
         //Get data array
         JSONArray data = mainObject.getJSONArray("data");
         //Get temperature from first item
-        String temperatureValue = data.getJSONObject(0).getString("valor");
+        String temperatureValue = data.getJSONObject(data.length() - 1).getString("valor");
         double temperature = Double.parseDouble(temperatureValue);
 
         //Set value to object
