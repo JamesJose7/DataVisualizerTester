@@ -1,6 +1,7 @@
 package com.jeeps.datavisualizer.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,6 +45,7 @@ public class SensorData {
     }
 
     public List<Float> getWeeklyTemperatureMin() {
+        Collections.reverse(weeklyTemperatureMin);
         return weeklyTemperatureMin;
     }
 
@@ -52,6 +54,7 @@ public class SensorData {
     }
 
     public List<Float> getWeeklyTemperatureMax() {
+        Collections.reverse(weeklyTemperatureMax);
         return weeklyTemperatureMax;
     }
 
@@ -60,6 +63,7 @@ public class SensorData {
     }
 
     public List<Float> getHourlyTemperature() {
+        Collections.reverse(hourlyTemperature);
         return hourlyTemperature;
     }
 

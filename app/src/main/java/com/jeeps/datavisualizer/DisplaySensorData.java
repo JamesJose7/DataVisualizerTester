@@ -410,24 +410,30 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     private String[] getWeekLabels() {
         String[] labels = new String[7];
+        int reverseCounter = labels.length -1;
         for (int i = 0; i < 7; i++) {
-            Date date = SensorDataParser.getPreviousDayDate(i);
+            Date date = SensorDataParser.getPreviousDayDate(reverseCounter);
             String day = dayFormatter.format(date);
             //Format it
             if (day.contains("."))
                 day = day.substring(0, day.length() - 1);
             day = day.substring(0, 1).toUpperCase() + day.substring(1, day.length()).toLowerCase();
             labels[i] = day;
+
+            reverseCounter--;
         }
         return labels;
     }
 
     public String[] getHourLabels() {
         String[] labels = new String[7];
+        int reverseCounter = labels.length -1;
         for (int i = 0; i < 7; i++) {
-            Date date = SensorDataParser.getPreviousHourDate(i);
+            Date date = SensorDataParser.getPreviousHourDate(reverseCounter);
             String hour = hourFormatter.format(date);
             labels[i] = hour;
+
+            reverseCounter--;
         }
         return labels;
     }
