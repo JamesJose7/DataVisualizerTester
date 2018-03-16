@@ -6,10 +6,12 @@ import android.animation.ObjectAnimator;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.db.chart.animation.Animation;
+import com.db.chart.listener.OnEntryClickListener;
 import com.db.chart.model.LineSet;
 import com.db.chart.view.LineChartView;
 import com.hookedonplay.decoviewlib.DecoView;
@@ -93,6 +96,12 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.fill_graph_button)
     ImageButton mFillTempChartLinesButton;
 
+    /* Temp chart */
+    @BindView(R.id.temp_chart_value_card)
+    CardView mTempCardValueCard;
+    @BindView(R.id.temp_chart_value_card_text)
+    TextView mTempCardValueCardText;
+
     /* Graph legend */
     @BindView(R.id.temp_legend_a_container)
     LinearLayout mTempLegendAContainer;
@@ -132,6 +141,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private LineSet mHourTempSet1;
     private LineSet mCompareTempSet0;
     private LineSet mCompareTempSet1;
+    private AnimatorSet mFadeInAndOut;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -236,8 +246,99 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mCompareTempChart
                 .setStep(5)
                 .show(new Animation());
+
+        //Temp chart entry listener
+        //Weekly
+        mWeekTempChart.setOnEntryClickListener(new OnEntryClickListener() {
+            @Override
+            public void onClick(int setIndex, int entryIndex, Rect rect) {
+                showAppropriateTempCardValues(setIndex, entryIndex, mWeekTempSet0, mWeekTempSet1);
+            }
+        });
+
+        //Hourly
+        mHourlyTempChart.setOnEntryClickListener(new OnEntryClickListener() {
+            @Override
+            public void onClick(int setIndex, int entryIndex, Rect rect) {
+                //Toast.makeText(DisplaySensorData.this, "Set: " + setIndex + " Entry: " + entryIndex, Toast.LENGTH_SHORT).show();
+                showAppropriateTempCardValues(setIndex, entryIndex, mHourTempSet0, mHourTempSet1);
+            }
+        });
+
+        //Daily
+        mCompareTempChart.setOnEntryClickListener(new OnEntryClickListener() {
+            @Override
+            public void onClick(int setIndex, int entryIndex, Rect rect) {
+                //Toast.makeText(DisplaySensorData.this, "Set: " + setIndex + " Entry: " + entryIndex, Toast.LENGTH_SHORT).show();
+                showAppropriateTempCardValues(setIndex, entryIndex, mCompareTempSet0, mCompareTempSet1);
+            }
+        });
     }
 
+    private void showAppropriateTempCardValues(int setIndex, int entryIndex, LineSet set1, LineSet set2) {
+        if (setIndex == 0) {
+            //Set value to the text view
+            mTempCardValueCardText.setText(String.format("%.2f\u00b0", set1.getValue(entryIndex)));
+        } else if (setIndex == 1) {
+            //Set value to the text view
+            mTempCardValueCardText.setText(String.format("%.2f\u00b0", set2.getValue(entryIndex)));
+        }
+        //Show card
+        showTempCardValueAnimation();
+    }
+
+    private void showTempCardValueAnimation() {
+        if (mFadeInAndOut != null)
+            mFadeInAndOut.cancel();
+
+        mFadeInAndOut = new AnimatorSet();
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(mTempCardValueCard, "alpha", 0f, 1f);
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(mTempCardValueCard, "alpha", 1f, 0f);
+        fadeOut.setStartDelay(1800);
+
+        //Set alpha to 0 and show the card before animating
+        mTempCardValueCard.setAlpha(0);
+        mTempCardValueCard.setVisibility(View.VISIBLE);
+
+        //Listener to hide card after animation
+        fadeOut.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {}
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                //Hide card
+                //Toast.makeText(DisplaySensorData.this, "Finished animation", Toast.LENGTH_SHORT).show();
+                mTempCardValueCard.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {}
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+
+        //Listener for cancelling animation
+        mFadeInAndOut.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {}
+
+            @Override
+            public void onAnimationEnd(Animator animator) {}
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+                mTempCardValueCard.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+
+        mFadeInAndOut.playSequentially(fadeIn, fadeOut);
+        mFadeInAndOut.start();
+    }
     /**
      * Listens to changes in the {@link SensorApiHelper} and updates the view every time the model
      * has been changed
@@ -682,6 +783,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
             fillTempChartLines = false;
         }
+    }
+
+    @OnClick(R.id.display_more_info_graph_button)
+    protected void displayMoreInfoTempChart() {
+
     }
 
     @Override

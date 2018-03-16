@@ -147,10 +147,42 @@
                     android:layout_height="25dp"
                     android:background="@null"
                     android:src="@drawable/dark_graph"
+                    android:alpha="0.4"
                     android:scaleType="centerInside"
                     android:layout_above="@id/week_temp_linechart"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="15dp"/>
+
+                <ImageButton
+                    android:id="@+id/display_more_info_graph_button"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@null"
+                    android:src="@drawable/more_info"
+                    android:alpha="0.6"
+                    android:scaleType="centerInside"
+                    android:layout_above="@id/week_temp_linechart"
+                    android:layout_toStartOf="@id/fill_graph_button"
+                    android:layout_marginEnd="15dp"/>
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/temp_chart_value_card"
+                    android:layout_width="60dp"
+                    android:layout_height="30dp"
+                    android:layout_alignTop="@id/week_temp_linechart"
+                    android:layout_alignEnd="@id/week_temp_linechart"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    app:cardElevation="4dp"
+                    android:visibility="invisible"
+                    tools:visibility="visible">
+                    <TextView
+                        android:id="@+id/temp_chart_value_card_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="100&#176;"/>
+                </android.support.v7.widget.CardView>
 
                 <com.db.chart.view.LineChartView
                     xmlns:chart="http://schemas.android.com/apk/res-auto"
@@ -426,6 +458,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="-6dp"/>
+
+    <!--<RelativeLayout
+        android:id="@+id/more_info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#77000000">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/more_info_temp_card"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="40dp"
+            app:cardElevation="9dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/more_info_temp_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </android.support.v7.widget.CardView>
+
+    </RelativeLayout>-->
 
 
 </RelativeLayout>
