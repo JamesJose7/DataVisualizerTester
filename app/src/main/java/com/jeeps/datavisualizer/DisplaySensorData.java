@@ -15,6 +15,8 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -96,6 +98,12 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.fill_graph_button)
     ImageButton mFillTempChartLinesButton;
 
+    /* More info layout */
+    @BindView(R.id.more_info_layout)
+    RelativeLayout mMoreInfoLayout;
+    @BindView(R.id.more_info_temp_card)
+    CardView mMoreInfoCard;
+
     /* Temp chart */
     @BindView(R.id.temp_chart_value_card)
     CardView mTempCardValueCard;
@@ -142,6 +150,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private LineSet mCompareTempSet0;
     private LineSet mCompareTempSet1;
     private AnimatorSet mFadeInAndOut;
+    private AnimatorSet mExpandFromMiddleCardAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +184,15 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                 mSensorApiHelper.openConnection();
             }
         });
+
+        //Hide more info layout onclick
+        mMoreInfoLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMoreInfoLayout.setVisibility(View.INVISIBLE);
+            }
+        });
+
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -787,7 +805,47 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.display_more_info_graph_button)
     protected void displayMoreInfoTempChart() {
+        mMoreInfoLayout.setVisibility(View.VISIBLE);
 
+        if (mExpandFromMiddleCardAnimation != null)
+            mExpandFromMiddleCardAnimation.cancel();
+
+        final int cardTop = mMoreInfoCard.getTop();
+        final int cardBottom = mMoreInfoCard.getBottom();
+        int cardMiddle = (cardBottom / 2) + cardTop;
+
+        //Top
+        ObjectAnimator topOut = ObjectAnimator.ofInt(mMoreInfoCard, "top", cardMiddle, cardTop);
+        //topOut.setDuration(4000);
+        topOut.setInterpolator(new AccelerateDecelerateInterpolator());
+        //Bottom
+        ObjectAnimator bottomOut = ObjectAnimator.ofInt(mMoreInfoCard, "bottom", cardMiddle, cardBottom);
+        //bottomOut.setDuration(4000);
+        bottomOut.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        //Set initial values
+        mMoreInfoCard.setBottom(cardMiddle);
+        mExpandFromMiddleCardAnimation = new AnimatorSet();
+        mExpandFromMiddleCardAnimation.playTogether(topOut, bottomOut);
+
+        mExpandFromMiddleCardAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {}
+
+            @Override
+            public void onAnimationEnd(Animator animator) {}
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+                mMoreInfoCard.setBottom(cardBottom);
+                mMoreInfoCard.setTop(cardTop);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+
+        mExpandFromMiddleCardAnimation.start();
     }
 
     @Override
