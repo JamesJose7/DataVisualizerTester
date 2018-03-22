@@ -65,76 +65,45 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private static final int TEMP_DATE_X = 0;
     private static final int TEMP_DATE_Y = 1;
 
-    @BindView(R.id.swipe_refresh_layout)
-    SwipeRefreshLayout mSwipeRefreshLayout;
-    @BindView(R.id.humidity_decoview)
-    DecoView mHumidityGraph;
-    @BindView(R.id.humidity_text)
-    TextView mHumidityText;
-    @BindView(R.id.week_temp_linechart)
-    LineChartView mWeekTempChart;
-    @BindView(R.id.hourly_temp_linechart)
-    LineChartView mHourlyTempChart;
-    @BindView(R.id.compare_temp_linechart)
-    LineChartView mCompareTempChart;
-    @BindView(R.id.current_temp_text)
-    TextView mCurrentTempText;
-    @BindView(R.id.last_7_days_text)
-    TextView mTempChartDescriptionText;
-    @BindView(R.id.thermometer_image)
-    ImageView mThermometerImage;
-    @BindView(R.id.main_progress_bar)
-    ProgressBar mMainProgressBar;
-    @BindView(R.id.temp_chart_week_button)
-    Button mWeekTempChartButton;
-    @BindView(R.id.temp_chart_hours_button)
-    Button mHoursTempChartButton;
-    @BindView(R.id.temp_chart_compare_button)
-    Button mCompareTempChartButton;
-    @BindView(R.id.temp_choose_x_day)
-    Button mChooseTempDateXButton;
-    @BindView(R.id.temp_choose_y_day)
-    Button mChooseTempDateYButton;
-    @BindView(R.id.compare_temp_controls_container)
-    RelativeLayout mTempCompareControlsLayout;
-    @BindView(R.id.compare_loading_progressbar)
-    ProgressBar mTempCompareProgressBar;
-    @BindView(R.id.fill_graph_button)
-    ImageButton mFillTempChartLinesButton;
+    @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindView(R.id.humidity_decoview) DecoView mHumidityGraph;
+    @BindView(R.id.humidity_text) TextView mHumidityText;
+    @BindView(R.id.week_temp_linechart) LineChartView mWeekTempChart;
+    @BindView(R.id.hourly_temp_linechart) LineChartView mHourlyTempChart;
+    @BindView(R.id.compare_temp_linechart) LineChartView mCompareTempChart;
+    @BindView(R.id.current_temp_text) TextView mCurrentTempText;
+    @BindView(R.id.last_7_days_text) TextView mTempChartDescriptionText;
+    @BindView(R.id.thermometer_image) ImageView mThermometerImage;
+    @BindView(R.id.main_progress_bar) ProgressBar mMainProgressBar;
+    @BindView(R.id.temp_chart_week_button) Button mWeekTempChartButton;
+    @BindView(R.id.temp_chart_hours_button) Button mHoursTempChartButton;
+    @BindView(R.id.temp_chart_compare_button) Button mCompareTempChartButton;
+    @BindView(R.id.temp_choose_x_day) Button mChooseTempDateXButton;
+    @BindView(R.id.temp_choose_y_day) Button mChooseTempDateYButton;
+    @BindView(R.id.compare_temp_controls_container) RelativeLayout mTempCompareControlsLayout;
+    @BindView(R.id.compare_loading_progressbar) ProgressBar mTempCompareProgressBar;
+    @BindView(R.id.fill_graph_button) ImageButton mFillTempChartLinesButton;
 
     /* More info layout */
-    @BindView(R.id.more_info_layout)
-    RelativeLayout mMoreInfoLayout;
-    @BindView(R.id.more_info_temp_card)
-    CardView mMoreInfoCard;
-    @BindView(R.id.more_info_temp_card_subtitle)
-    TextView mMoreInfoCardTitle;
-    @BindView(R.id.more_info_temp_list_view)
-    RecyclerView mMoreInfoTempRecyclerView;
-    @BindView(R.id.more_info_hourly_temp_list_view)
-    RecyclerView mMoreInfoHourlyTempRecyclerView;
+    @BindView(R.id.more_info_layout) RelativeLayout mMoreInfoLayout;
+    @BindView(R.id.more_info_temp_card) CardView mMoreInfoCard;
+    @BindView(R.id.more_info_temp_card_subtitle) TextView mMoreInfoCardTitle;
+    @BindView(R.id.more_info_temp_list_view) RecyclerView mMoreInfoTempRecyclerView;
+    @BindView(R.id.more_info_hourly_temp_list_view) RecyclerView mMoreInfoHourlyTempRecyclerView;
     private MoreInfoTempListAdapter mMoreInfoTempListAdapter;
     private MoreInfoTempListAdapter mMoreInfoHourlyTempListAdapter;
 
     /* Temp chart */
-    @BindView(R.id.temp_chart_value_card)
-    CardView mTempCardValueCard;
-    @BindView(R.id.temp_chart_value_card_text)
-    TextView mTempCardValueCardText;
+    @BindView(R.id.temp_chart_value_card) CardView mTempCardValueCard;
+    @BindView(R.id.temp_chart_value_card_text) TextView mTempCardValueCardText;
 
     /* Graph legend */
-    @BindView(R.id.temp_legend_a_container)
-    LinearLayout mTempLegendAContainer;
-    @BindView(R.id.temp_legend_b_container)
-    LinearLayout mTempLegendBContainer;
-    @BindView(R.id.temp_legend_a_view)
-    TextView mTempLegendAView;
-    @BindView(R.id.temp_legend_a)
-    TextView mTempLegendA;
-    @BindView(R.id.temp_legend_b_view)
-    TextView mTempLegendBView;
-    @BindView(R.id.temp_legend_b)
-    TextView mTempLegendB;
+    @BindView(R.id.temp_legend_a_container) LinearLayout mTempLegendAContainer;
+    @BindView(R.id.temp_legend_b_container) LinearLayout mTempLegendBContainer;
+    @BindView(R.id.temp_legend_a_view) TextView mTempLegendAView;
+    @BindView(R.id.temp_legend_a) TextView mTempLegendA;
+    @BindView(R.id.temp_legend_b_view) TextView mTempLegendBView;
+    @BindView(R.id.temp_legend_b) TextView mTempLegendB;
 
     private int humidityDataIndex;
     private String[] weekLabels;
