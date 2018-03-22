@@ -107,9 +107,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     RelativeLayout mMoreInfoLayout;
     @BindView(R.id.more_info_temp_card)
     CardView mMoreInfoCard;
+    @BindView(R.id.more_info_temp_card_subtitle)
+    TextView mMoreInfoCardTitle;
     @BindView(R.id.more_info_temp_list_view)
     RecyclerView mMoreInfoTempRecyclerView;
+    @BindView(R.id.more_info_hourly_temp_list_view)
+    RecyclerView mMoreInfoHourlyTempRecyclerView;
     private MoreInfoTempListAdapter mMoreInfoTempListAdapter;
+    private MoreInfoTempListAdapter mMoreInfoHourlyTempListAdapter;
 
     /* Temp chart */
     @BindView(R.id.temp_chart_value_card)
@@ -416,11 +421,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //More Info temperature
         mMoreInfoTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
-        mMoreInfoTempListAdapter = new MoreInfoTempListAdapter(this, sensorData.getWeeklyTemperatureMax(), sensorData);
+        mMoreInfoHourlyTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
+
+        mMoreInfoTempListAdapter = new MoreInfoTempListAdapter(this, sensorData.getWeeklyTemperatureMax(), sensorData, MoreInfoTempListAdapter.LAST_7_DAYS);
+        mMoreInfoHourlyTempListAdapter = new MoreInfoTempListAdapter(this, sensorData.getWeeklyTemperatureMax(), sensorData, MoreInfoTempListAdapter.LAST_7_HOURS);
+
         mMoreInfoTempRecyclerView.setAdapter(mMoreInfoTempListAdapter);
+        mMoreInfoHourlyTempRecyclerView.setAdapter(mMoreInfoHourlyTempListAdapter);
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DisplaySensorData.this);
+        RecyclerView.LayoutManager layoutManager2 = new LinearLayoutManager(DisplaySensorData.this);
         mMoreInfoTempRecyclerView.setLayoutManager(layoutManager);
         mMoreInfoTempRecyclerView.setHasFixedSize(true);
+        mMoreInfoHourlyTempRecyclerView.setLayoutManager(layoutManager2);
+        mMoreInfoHourlyTempRecyclerView.setHasFixedSize(true);
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
@@ -720,6 +734,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Set current graph flag
         currentTempGraph = TEMP_WEEK_GRAPH;
+
+        //Show appropriate data for more info card
+        mMoreInfoCardTitle.setText("Últimos 7 días");
+        mMoreInfoTempRecyclerView.setVisibility(View.VISIBLE);
+        mMoreInfoHourlyTempRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.temp_chart_hours_button)
@@ -740,6 +759,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Set current graph flag
         currentTempGraph = TEMP_HOURS_GRAPH;
+
+        //Show appropriate data for more info card
+        mMoreInfoCardTitle.setText("Últimas 7 horas");
+        mMoreInfoHourlyTempRecyclerView.setVisibility(View.VISIBLE);
+        mMoreInfoTempRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.temp_chart_compare_button)

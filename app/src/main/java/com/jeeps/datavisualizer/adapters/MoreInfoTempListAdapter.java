@@ -27,17 +27,23 @@ import butterknife.ButterKnife;
 
 public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempListAdapter.MoreInfoTempViewHolder> {
 
+    public static final int LAST_7_DAYS = 0;
+    public static final int LAST_7_HOURS = 1;
+
     private SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE", new Locale("es", "EC"));
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("MMMM, dd", new Locale("es", "EC"));
+    private SimpleDateFormat hourFormatter = new SimpleDateFormat("HH", new Locale("es", "EC"));
 
     private Context mContext;
     private List<Float> mTemperatures;
     private SensorData mSensorData;
+    private int mType;
 
-    public MoreInfoTempListAdapter(Context context, List<Float> temperatures, SensorData sensorData) {
+    public MoreInfoTempListAdapter(Context context, List<Float> temperatures, SensorData sensorData, int type) {
         mContext = context;
         mTemperatures = temperatures;
         mSensorData = sensorData;
+        mType = type;
     }
 
     @Override
@@ -72,23 +78,43 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
         }
 
         public void bindSensorData(SensorData sensorData, float temperature, int position) {
-            //Date
-            Date date = SensorDataParser.getPreviousDayDate(position);
-            String dayOfWeek = dayFormatter.format(date);
-            String dateOfMonth = dateFormatter.format(date);
-            //Cap first letter
-            dayOfWeek = dayOfWeek.substring(0, 1).toUpperCase() + dayOfWeek.substring(1);
-            dateOfMonth = dateOfMonth.substring(0, 1).toUpperCase() + dateOfMonth.substring(1);
-            //Get values
-            float maxTemp = sensorData.getWeeklyTemperatureMax().get(position);
-            float minTemp = sensorData.getWeeklyTemperatureMin().get(position);
-            int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) maxTemp);
-            //bind data
-            mMainDescription.setText(dayOfWeek);
-            mSecondaryDescription.setText(dateOfMonth);
-            mImage.setImageResource(thermometerDrawable);
-            mFirstValue.setText(String.format("%.2f\u00b0", maxTemp));
-            mSecondaryValue.setText(String.format("%.2f\u00b0", minTemp));
+            if (mType == LAST_7_DAYS) {
+                //Date
+                Date date = SensorDataParser.getPreviousDayDate(position);
+                String dayOfWeek = dayFormatter.format(date);
+                String dateOfMonth = dateFormatter.format(date);
+                //Cap first letter
+                dayOfWeek = dayOfWeek.substring(0, 1).toUpperCase() + dayOfWeek.substring(1);
+                dateOfMonth = dateOfMonth.substring(0, 1).toUpperCase() + dateOfMonth.substring(1);
+                //Get values
+                float maxTemp = sensorData.getWeeklyTemperatureMax().get(position);
+                float minTemp = sensorData.getWeeklyTemperatureMin().get(position);
+                int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) maxTemp);
+                //bind data
+                mMainDescription.setText(dayOfWeek);
+                mSecondaryDescription.setText(dateOfMonth);
+                mImage.setImageResource(thermometerDrawable);
+                mFirstValue.setText(String.format("%.2f\u00b0", maxTemp));
+                mSecondaryValue.setText(String.format("%.2f\u00b0", minTemp));
+            } else if (mType == LAST_7_HOURS) {
+                //Time
+                Date hour = SensorDataParser.getPreviousHourDate(position);
+                String time = hourFormatter.format(hour);
+                String currentHour = String.format("%s:00 - %s:59", time, time);
+
+                String previousHours = String.format("Hace %d horas", position);
+                if (position == 0)
+                    previousHours = "Actualmente";
+                //Get values
+                float temp = sensorData.getHourlyTemperature().get(position);
+                int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) temp);
+                //Bind data
+                mMainDescription.setText(currentHour);
+                mSecondaryDescription.setText(previousHours);
+                mImage.setImageResource(thermometerDrawable);
+                mFirstValue.setText(String.format("%.2f\u00b0", temp));
+                mSecondaryValue.setText("");
+            }
         }
     }
 }
