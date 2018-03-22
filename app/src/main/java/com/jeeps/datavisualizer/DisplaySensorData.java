@@ -12,6 +12,8 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -33,6 +35,8 @@ import com.db.chart.view.LineChartView;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
+import com.jeeps.datavisualizer.adapters.MoreInfoTempListAdapter;
+import com.jeeps.datavisualizer.adapters.SimpleDividerItemDecoration;
 import com.jeeps.datavisualizer.controller.SensorApiHelper;
 import com.jeeps.datavisualizer.controller.SensorDataParser;
 import com.jeeps.datavisualizer.model.SensorData;
@@ -103,6 +107,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     RelativeLayout mMoreInfoLayout;
     @BindView(R.id.more_info_temp_card)
     CardView mMoreInfoCard;
+    @BindView(R.id.more_info_temp_list_view)
+    RecyclerView mMoreInfoTempRecyclerView;
+    private MoreInfoTempListAdapter mMoreInfoTempListAdapter;
 
     /* Temp chart */
     @BindView(R.id.temp_chart_value_card)
@@ -406,6 +413,15 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             updateCharts();
 
         }
+
+        //More Info temperature
+        mMoreInfoTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
+        mMoreInfoTempListAdapter = new MoreInfoTempListAdapter(this, sensorData.getWeeklyTemperatureMax(), sensorData);
+        mMoreInfoTempRecyclerView.setAdapter(mMoreInfoTempListAdapter);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DisplaySensorData.this);
+        mMoreInfoTempRecyclerView.setLayoutManager(layoutManager);
+        mMoreInfoTempRecyclerView.setHasFixedSize(true);
+
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
@@ -534,7 +550,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
      * @param percent percentage used for 5 different stages
      * @return the appropriate {@link android.graphics.drawable.Drawable} for each stage
      */
-    private int getPercentageTermometer(int percent) {
+    public static int getPercentageTermometer(int percent) {
         if (percent >= 40)
             return R.drawable.thermometer;
         else if (percent >= 30)
