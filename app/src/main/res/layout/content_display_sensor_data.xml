@@ -514,6 +514,14 @@
                     android:visibility="invisible"
                     android:layout_below="@id/more_info_temp_card_subtitle"/>
 
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/more_info_compare_temp_list_view"
+                    android:layout_width="match_parent"
+                    android:background="#fff"
+                    android:layout_height="500dp"
+                    android:visibility="invisible"
+                    android:layout_below="@id/more_info_temp_card_subtitle"/>
+
             </RelativeLayout>
 
 

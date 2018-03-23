@@ -35,6 +35,7 @@ import com.db.chart.view.LineChartView;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
+import com.jeeps.datavisualizer.adapters.MoreInfoTempCompareListAdapter;
 import com.jeeps.datavisualizer.adapters.MoreInfoTempListAdapter;
 import com.jeeps.datavisualizer.adapters.SimpleDividerItemDecoration;
 import com.jeeps.datavisualizer.controller.SensorApiHelper;
@@ -90,8 +91,10 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.more_info_temp_card_subtitle) TextView mMoreInfoCardTitle;
     @BindView(R.id.more_info_temp_list_view) RecyclerView mMoreInfoTempRecyclerView;
     @BindView(R.id.more_info_hourly_temp_list_view) RecyclerView mMoreInfoHourlyTempRecyclerView;
+    @BindView(R.id.more_info_compare_temp_list_view) RecyclerView mMoreInfoCompareTempRecyclerView;
     private MoreInfoTempListAdapter mMoreInfoTempListAdapter;
     private MoreInfoTempListAdapter mMoreInfoHourlyTempListAdapter;
+    private MoreInfoTempCompareListAdapter mMoreInfoTempCompareListAdapter;
 
     /* Temp chart */
     @BindView(R.id.temp_chart_value_card) CardView mTempCardValueCard;
@@ -444,8 +447,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                         public void run() {
                             mTempCompareProgressBar.setVisibility(View.INVISIBLE);
                             updateCompareCharts(dataTempX, dataTempY);
+
+                            //More Info temperature
+
+                            mMoreInfoCompareTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(DisplaySensorData.this));
+                            mMoreInfoTempCompareListAdapter = new MoreInfoTempCompareListAdapter(DisplaySensorData.this, dataTempX, dataTempY, dateX, dateY);
+                            mMoreInfoCompareTempRecyclerView.setAdapter(mMoreInfoTempCompareListAdapter);
+
+                            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DisplaySensorData.this);
+                            mMoreInfoCompareTempRecyclerView.setLayoutManager(layoutManager);
+                            mMoreInfoCompareTempRecyclerView.setHasFixedSize(true);
                         }
                     });
+
+
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -708,6 +723,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mMoreInfoCardTitle.setText("Últimos 7 días");
         mMoreInfoTempRecyclerView.setVisibility(View.VISIBLE);
         mMoreInfoHourlyTempRecyclerView.setVisibility(View.INVISIBLE);
+        mMoreInfoCompareTempRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.temp_chart_hours_button)
@@ -733,6 +749,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mMoreInfoCardTitle.setText("Últimas 7 horas");
         mMoreInfoHourlyTempRecyclerView.setVisibility(View.VISIBLE);
         mMoreInfoTempRecyclerView.setVisibility(View.INVISIBLE);
+        mMoreInfoCompareTempRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.temp_chart_compare_button)
@@ -753,6 +770,12 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Set current graph flag
         currentTempGraph = TEMP_COMPARE_GRAPH;
+
+        //Show appropriate data for more info card
+        mMoreInfoCardTitle.setText("Comparar días");
+        mMoreInfoCompareTempRecyclerView.setVisibility(View.VISIBLE);
+        mMoreInfoHourlyTempRecyclerView.setVisibility(View.INVISIBLE);
+        mMoreInfoTempRecyclerView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.temp_choose_x_day)
