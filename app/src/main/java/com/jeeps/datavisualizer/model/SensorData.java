@@ -63,7 +63,6 @@ public class SensorData {
     }
 
     public List<Float> getHourlyTemperature() {
-        Collections.reverse(hourlyTemperature);
         return hourlyTemperature;
     }
 

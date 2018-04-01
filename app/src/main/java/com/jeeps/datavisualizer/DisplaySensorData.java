@@ -375,6 +375,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Hourly temperature
         mHourlyTemp = listToArray(sensorData.getHourlyTemperature());
+        if (mHourlyTemp.length > 7) {
+            mHourlyTemp = shrinkArray(mHourlyTemp, 7);
+        }
 
         //Delay the first data load on graphs since they take some time to initialize properly
         if (firstLoad) {
@@ -411,6 +414,16 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
+    private float[] shrinkArray(float[] array, int newSize) {
+        int biggerArrayCounter = array.length - 1;
+        float[] newArray = new float[newSize];
+        for (int i = newArray.length - 1; i >= 0; i--) {
+            newArray[i] = array[biggerArrayCounter];
+            biggerArrayCounter--;
+        }
+        return newArray;
+    }
+
     /**
      * Notifies all charts that their data has been updated
      */
@@ -438,9 +451,18 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                     SensorData dataX = mSensorApiHelper.requestPreviousDayData(dateX);
                     SensorData dataY = mSensorApiHelper.requestPreviousDayData(dateY);
 
-                    //Get data arrays
-                    final float[] dataTempX = listToArray(dataX.getHourlyTemperature());
-                    final float[] dataTempY = listToArray(dataY.getHourlyTemperature());
+                    final float[] dataTempX;
+                    final float[] dataTempY;
+                    //Check if arrays are bigger than 7
+                    if (dataX.getHourlyTemperature().size() > 7)
+                        dataTempX = shrinkArray(listToArray(dataX.getHourlyTemperature()), 7);
+                    else
+                        dataTempX = listToArray(dataX.getHourlyTemperature());
+
+                    if (dataY.getHourlyTemperature().size() > 7)
+                        dataTempY = shrinkArray(listToArray(dataY.getHourlyTemperature()), 7);
+                    else
+                        dataTempY = listToArray(dataY.getHourlyTemperature());
 
                     runOnUiThread(new Runnable() {
                         @Override

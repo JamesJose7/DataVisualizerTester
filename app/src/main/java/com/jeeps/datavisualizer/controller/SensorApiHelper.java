@@ -122,7 +122,7 @@ public class SensorApiHelper {
         Request weeklyTemperatureRequest = new Request.Builder()
                 .url(weeklyTemperatureUrl)
                 .build();
-        makeCall(weeklyTemperatureRequest, WEEKLY_TEMP);    
+        makeCall(weeklyTemperatureRequest, WEEKLY_TEMP);
     }
 
     public SensorData requestPreviousDayData(Date date) throws IOException, JSONException {
@@ -133,7 +133,7 @@ public class SensorApiHelper {
         SensorDataParser sensorDataParser = new SensorDataParser(sensorData);
 
         //Temperature callback
-        String temperatureUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, formattedDate);
+        String temperatureUrl = ApiBuilder.buildValuesByHourUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, formattedDate);
         Request request = new Request.Builder()
                 .url(temperatureUrl)
                 .build();
@@ -141,7 +141,7 @@ public class SensorApiHelper {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            sensorDataParser.parseTemperature(response.body().string());
+            sensorDataParser.parseHourlyTemperature(response.body().string());
             return sensorDataParser.getSensorData();
         }
     }
@@ -203,6 +203,7 @@ public class SensorApiHelper {
         if (isHumidityCallComplete && isTemperatureCallComplete && isWeeklyTempComplete) {
             isHumidityCallComplete = false;
             isTemperatureCallComplete = false;
+            isHourlyTempComplete = false;
             isWeeklyTempComplete = false;
 
             mActivity.runOnUiThread(new Runnable() {

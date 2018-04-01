@@ -97,6 +97,7 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
                 mFirstValue.setText(String.format("%.2f\u00b0", maxTemp));
                 mSecondaryValue.setText(String.format("%.2f\u00b0", minTemp));
             } else if (mType == LAST_7_HOURS) {
+                //TODO Show all previous hours instead of just 7
                 //Time
                 Date hour = SensorDataParser.getPreviousHourDate(position);
                 String time = hourFormatter.format(hour);
