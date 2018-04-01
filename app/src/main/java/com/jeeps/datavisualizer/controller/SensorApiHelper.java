@@ -52,11 +52,13 @@ public class SensorApiHelper {
 
     private boolean isHumidityCallComplete = false;
     private boolean isTemperatureCallComplete = false;
+    private boolean isHourlyTempComplete = false;
     private boolean isWeeklyTempComplete = false;
     private int sumCheck = 0;
     public static final int HUMIDITY = 0;
     public static final int TEMPERATURE = 1;
-    private static final int WEEKLY_TEMP = 2;
+    private static final int HOURLY_TEMP = 2;
+    private static final int WEEKLY_TEMP = 3;
 
     public interface SensorApiListener {
         void update(SensorData sensorData);
@@ -93,30 +95,34 @@ public class SensorApiHelper {
     public void requestApi() throws Exception {
         String currentDate = mDateFormat.format(new Date());
 
-        //Humidity callback
+        //Current Humidity callback
         String humidityUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.HUMIDITY_SENSOR, currentDate);
         Request humidityRequest = new Request.Builder()
                 .url(humidityUrl)
                 .build();
-        makeCall(humidityRequest, HUMIDITY, 0);
+        makeCall(humidityRequest, HUMIDITY);
 
-        //Temperature callback
+        //Current Temperature callback
         String temperatureUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, currentDate);
         Request temperatureRequest = new Request.Builder()
                 .url(temperatureUrl)
                 .build();
-        makeCall(temperatureRequest, TEMPERATURE, 0);
+        makeCall(temperatureRequest, TEMPERATURE);
 
-        //Weekly temp
-        for (int i = 1; i <= 6; i++) {
-            String previousDate = mDateFormat.format(SensorDataParser.getPreviousDayDate(i));
-            String weeklyTempUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, previousDate);
-            Request weeklyTempRequest = new Request.Builder()
-                    .url(weeklyTempUrl)
-                    .build();
-            makeCall(weeklyTempRequest, WEEKLY_TEMP, i);
-        }
+        //Hourly Temperature callback
+        String hourlyTemperatureUrl = ApiBuilder.buildValuesByHourUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, currentDate);
+        Request hourlyTemperatureRequest = new Request.Builder()
+                .url(hourlyTemperatureUrl)
+                .build();
+        makeCall(hourlyTemperatureRequest, HOURLY_TEMP);
 
+        //Weekly Temperature callback
+        String previousDate = mDateFormat.format(SensorDataParser.getPreviousDayDate(6));
+        String weeklyTemperatureUrl = ApiBuilder.buildValuesByDateRangeUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, previousDate, currentDate);
+        Request weeklyTemperatureRequest = new Request.Builder()
+                .url(weeklyTemperatureUrl)
+                .build();
+        makeCall(weeklyTemperatureRequest, WEEKLY_TEMP);    
     }
 
     public SensorData requestPreviousDayData(Date date) throws IOException, JSONException {
@@ -140,7 +146,7 @@ public class SensorApiHelper {
         }
     }
 
-    private void makeCall(Request request, final int type, final int dateCounter) {
+    private void makeCall(Request request, final int type) {
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -168,28 +174,24 @@ public class SensorApiHelper {
                             //Mark completion
                             isTemperatureCallComplete = true;
                             break;
-                        case WEEKLY_TEMP:
+                        case HOURLY_TEMP:
                             //Parse data
-                            mSensorDataParser.parseWeeklyTemp(jsonData, dateCounter);
+                            mSensorDataParser.parseHourlyTemperature(jsonData);
 
                             //Mark completion
-                            sumCheck += dateCounter;
-                            if (sumCheck == 21) {
-                                isWeeklyTempComplete = true;
-                                sumCheck = 0;
-                            }
+                            isHourlyTempComplete = true;
+                            break;
+                        case WEEKLY_TEMP:
+                            //Parse data
+                            mSensorDataParser.parseWeeklyTemp(jsonData);
+
+                            //Mark completion
+                            isWeeklyTempComplete = true;
                             break;
                         default:
                     }
 
                     checkCompletion();
-
-                    /*Headers responseHeaders = response.headers();
-                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-                        System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                    }
-
-                    System.out.println(responseBody.string());*/
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
