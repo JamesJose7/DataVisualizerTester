@@ -17,8 +17,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -47,7 +45,9 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -407,9 +407,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DisplaySensorData.this);
         RecyclerView.LayoutManager layoutManager2 = new LinearLayoutManager(DisplaySensorData.this);
         mMoreInfoTempRecyclerView.setLayoutManager(layoutManager);
-        mMoreInfoTempRecyclerView.setHasFixedSize(true);
+        //mMoreInfoTempRecyclerView.setHasFixedSize(true);
         mMoreInfoHourlyTempRecyclerView.setLayoutManager(layoutManager2);
-        mMoreInfoHourlyTempRecyclerView.setHasFixedSize(true);
+        //mMoreInfoHourlyTempRecyclerView.setHasFixedSize(true);
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
@@ -451,6 +451,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                     SensorData dataX = mSensorApiHelper.requestPreviousDayData(dateX);
                     SensorData dataY = mSensorApiHelper.requestPreviousDayData(dateY);
 
+                    //Reverse order of full length lists
+                    List<Float> fullLengthTempX = new ArrayList<>(dataX.getHourlyTemperature());
+                    List<Float> fullLengthTempY = new ArrayList<>(dataY.getHourlyTemperature());
+                    Collections.reverse(fullLengthTempX);
+                    Collections.reverse(fullLengthTempY);
+                    final float[] originalTempX = listToArray(fullLengthTempX);
+                    final float[] originalTempY = listToArray(fullLengthTempY);
+
                     final float[] dataTempX;
                     final float[] dataTempY;
                     //Check if arrays are bigger than 7
@@ -473,12 +481,13 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                             //More Info temperature
 
                             mMoreInfoCompareTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(DisplaySensorData.this));
-                            mMoreInfoTempCompareListAdapter = new MoreInfoTempCompareListAdapter(DisplaySensorData.this, dataTempX, dataTempY, dateX, dateY);
+                            mMoreInfoTempCompareListAdapter = new MoreInfoTempCompareListAdapter(DisplaySensorData.this,
+                                    originalTempX, originalTempY, dateX, dateY);
                             mMoreInfoCompareTempRecyclerView.setAdapter(mMoreInfoTempCompareListAdapter);
 
                             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DisplaySensorData.this);
                             mMoreInfoCompareTempRecyclerView.setLayoutManager(layoutManager);
-                            mMoreInfoCompareTempRecyclerView.setHasFixedSize(true);
+                            //mMoreInfoCompareTempRecyclerView.setHasFixedSize(true);
                         }
                     });
 
@@ -768,7 +777,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         currentTempGraph = TEMP_HOURS_GRAPH;
 
         //Show appropriate data for more info card
-        mMoreInfoCardTitle.setText("Últimas 7 horas");
+        mMoreInfoCardTitle.setText("Resumen de hoy por horas");
         mMoreInfoHourlyTempRecyclerView.setVisibility(View.VISIBLE);
         mMoreInfoTempRecyclerView.setVisibility(View.INVISIBLE);
         mMoreInfoCompareTempRecyclerView.setVisibility(View.INVISIBLE);

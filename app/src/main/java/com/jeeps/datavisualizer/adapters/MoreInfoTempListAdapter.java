@@ -14,6 +14,8 @@ import com.jeeps.datavisualizer.controller.SensorDataParser;
 import com.jeeps.datavisualizer.model.SensorData;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +39,7 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
     private Context mContext;
     private List<Float> mTemperatures;
     private SensorData mSensorData;
+    private List<Float> mHourlyTemperatures;
     private int mType;
 
     public MoreInfoTempListAdapter(Context context, List<Float> temperatures, SensorData sensorData, int type) {
@@ -44,6 +47,8 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
         mTemperatures = temperatures;
         mSensorData = sensorData;
         mType = type;
+        mHourlyTemperatures = new ArrayList<>(mSensorData.getHourlyTemperature());
+        Collections.reverse(mHourlyTemperatures);
     }
 
     @Override
@@ -55,12 +60,19 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
 
     @Override
     public void onBindViewHolder(MoreInfoTempViewHolder holder, int position) {
-        holder.bindSensorData(mSensorData, mTemperatures.get(position), position);
+        if (mType == LAST_7_DAYS)
+            holder.bindSensorData(mSensorData, mTemperatures.get(position), position);
+        else
+            holder.bindSensorData(mSensorData, mHourlyTemperatures.get(position), position);
+
     }
 
     @Override
     public int getItemCount() {
-        return mTemperatures.size();
+        if (mType == LAST_7_DAYS)
+            return mTemperatures.size();
+        else
+            return mHourlyTemperatures.size();
     }
 
 
@@ -107,7 +119,7 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
                 if (position == 0)
                     previousHours = "Actualmente";
                 //Get values
-                float temp = sensorData.getHourlyTemperature().get(position);
+                float temp = mHourlyTemperatures.get(position);
                 int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) temp);
                 //Bind data
                 mMainDescription.setText(currentHour);

@@ -12,12 +12,9 @@ import android.widget.TextView;
 
 import com.jeeps.datavisualizer.DisplaySensorData;
 import com.jeeps.datavisualizer.R;
-import com.jeeps.datavisualizer.controller.SensorDataParser;
-import com.jeeps.datavisualizer.model.SensorData;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -100,8 +97,9 @@ public class MoreInfoTempCompareListAdapter extends RecyclerView.Adapter<MoreInf
             String dayOfWeek = dayFormatter.format(mDateX);
             String dateOfMonth = dateFormatter.format(mDateX);
             //Time
+            int counter = (mDataX.length - 1) - position;
             String time = hourFormatter.format(mDateX);
-            String currentHour = String.format("%s:00 - %s:59", time, time);
+            String currentHour = String.format("%s:00 - %s:59", counter, counter);
             //Cap first letter
             dayOfWeek = dayOfWeek.substring(0, 1).toUpperCase() + dayOfWeek.substring(1);
             dateOfMonth = dateOfMonth.substring(0, 1).toUpperCase() + dateOfMonth.substring(1);
@@ -118,8 +116,9 @@ public class MoreInfoTempCompareListAdapter extends RecyclerView.Adapter<MoreInf
             String dayOfWeek2 = dayFormatter.format(mDateY);
             String dateOfMonth2 = dateFormatter.format(mDateY);
             //Time
+            int counter2 = (mDataY.length - 1) - position;
             String time2 = hourFormatter.format(mDateY);
-            String currentHour2 = String.format("%s:00 - %s:59", time2, time2);
+            String currentHour2 = String.format("%s:00 - %s:59", counter2, counter2);
             //Cap first letter
             dayOfWeek2 = dayOfWeek2.substring(0, 1).toUpperCase() + dayOfWeek2.substring(1);
             dateOfMonth2 = dateOfMonth2.substring(0, 1).toUpperCase() + dateOfMonth2.substring(1);
