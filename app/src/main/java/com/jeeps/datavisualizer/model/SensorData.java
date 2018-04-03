@@ -11,11 +11,12 @@ import java.util.List;
 public class SensorData {
     private double temperature;
     private double humidity;
+    private double luminosity;
     private List<Float> weeklyTemperatureMin;
     private List<Float> weeklyTemperatureMax;
     private List<Float> hourlyTemperature;
 
-    public SensorData(double temperature, double humidity, List<Float> weeklyTemperatureMin, List<Float> weeklyTemperatureMax) {
+    public SensorData(double temperature, double humidity, double luminosity, List<Float> weeklyTemperatureMin, List<Float> weeklyTemperatureMax) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.weeklyTemperatureMin = weeklyTemperatureMin;
@@ -42,6 +43,14 @@ public class SensorData {
 
     public void setHumidity(double humidity) {
         this.humidity = humidity;
+    }
+
+    public double getLuminosity() {
+        return luminosity;
+    }
+
+    public void setLuminosity(double luminosity) {
+        this.luminosity = luminosity;
     }
 
     public List<Float> getWeeklyTemperatureMin() {

@@ -79,7 +79,7 @@
                 android:layout_below="@id/humidity_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="120dp"
+                android:layout_marginBottom="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 app:cardElevation="4dp">
@@ -102,7 +102,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
                     android:layout_marginTop="50dp"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="30dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -116,7 +116,6 @@
                             android:layout_height="80dp"
                             android:src="@drawable/thermometer"/>
 
-
                         <TextView
                             android:id="@+id/current_temp_text"
                             android:layout_width="60dp"
@@ -125,320 +124,406 @@
                             android:textSize="25sp"
                             android:text="0&#176;"/>
 
-
-
                     </LinearLayout>
-
 
                 </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/last_7_days_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_below="@id/temperature_layout"
-                    android:text="Últimos 7 días"/>
+            </RelativeLayout>
 
-                <ImageButton
-                    android:id="@+id/fill_graph_button"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:background="@null"
-                    android:src="@drawable/dark_graph"
-                    android:alpha="0.4"
-                    android:scaleType="centerInside"
-                    android:layout_above="@id/week_temp_linechart"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="15dp"/>
+            </android.support.v7.widget.CardView>
 
-                <ImageButton
-                    android:id="@+id/display_more_info_graph_button"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:background="@null"
-                    android:src="@drawable/more_info"
-                    android:alpha="0.6"
-                    android:scaleType="centerInside"
-                    android:layout_above="@id/week_temp_linechart"
-                    android:layout_toStartOf="@id/fill_graph_button"
-                    android:layout_marginEnd="15dp"/>
-
-                <android.support.v7.widget.CardView
-                    android:id="@+id/temp_chart_value_card"
-                    android:layout_width="60dp"
-                    android:layout_height="30dp"
-                    android:layout_alignTop="@id/week_temp_linechart"
-                    android:layout_alignEnd="@id/week_temp_linechart"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="5dp"
-                    app:cardElevation="4dp"
-                    android:visibility="invisible"
-                    tools:visibility="visible">
-                    <TextView
-                        android:id="@+id/temp_chart_value_card_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:text="100&#176;"/>
-                </android.support.v7.widget.CardView>
-
-                <com.db.chart.view.LineChartView
-                    xmlns:chart="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/week_temp_linechart"
-                    android:layout_width="match_parent"
-                    android:layout_below="@id/last_7_days_text"
-                    android:layout_height="180dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"/>
-
-                <com.db.chart.view.LineChartView
-                    xmlns:chart="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/hourly_temp_linechart"
-                    android:visibility="invisible"
-                    android:layout_width="match_parent"
-                    android:layout_below="@id/last_7_days_text"
-                    android:layout_height="180dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"/>
-
-                <com.db.chart.view.LineChartView
-                    xmlns:chart="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/compare_temp_linechart"
-                    android:visibility="invisible"
-                    android:layout_width="match_parent"
-                    android:layout_below="@id/last_7_days_text"
-                    android:layout_height="180dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"/>
-
-                <LinearLayout
-                    android:id="@+id/temp_graph_legend_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/compare_temp_linechart"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:weightSum="100"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:id="@+id/temp_legend_a_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="50"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/temp_legend_a_view"
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_gravity="center_vertical"
-                            android:background="@drawable/round_background"/>
-
-                        <TextView
-                            android:id="@+id/temp_legend_a"
-                            android:layout_width="wrap_content"
-                            android:layout_height="25dp"
-                            android:gravity="center_vertical"
-                            android:layout_marginLeft="8dp"
-                            android:text="-"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/temp_legend_b_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="50"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/temp_legend_b_view"
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_gravity="center_vertical"
-                            android:background="@drawable/round_background"/>
-
-                        <TextView
-                            android:id="@+id/temp_legend_b"
-                            android:layout_width="wrap_content"
-                            android:layout_height="25dp"
-                            android:gravity="center_vertical"
-                            android:layout_marginLeft="8dp"
-                            android:text="-"/>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/compare_loading_progressbar"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:indeterminate="true"
-                    android:visibility="invisible"
-                    android:layout_alignTop="@id/compare_temp_linechart"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginEnd="18dp"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/temp_chart_controls_container"
-                    android:layout_below="@id/temp_graph_legend_container"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
-                    android:weightSum="90"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="20dp">
-
-                    <Button
-                        android:id="@+id/temp_chart_week_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:layout_weight="30"
-                        android:text="Semana"
-                        android:textAllCaps="false"
-                        android:background="@drawable/left_button"/>
-
-                    <Button
-                        android:id="@+id/temp_chart_hours_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:layout_weight="30"
-                        android:text="Horas"
-                        android:textAllCaps="false"
-                        android:background="@drawable/center_button"/>
-
-                    <Button
-                        android:id="@+id/temp_chart_compare_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:layout_weight="30"
-                        android:text="Comparar"
-                        android:textAllCaps="false"
-                        android:background="@drawable/right_button"/>
-
-
-                </LinearLayout>
+            <android.support.v7.widget.CardView
+                android:id="@+id/luminosity_card_layout"
+                android:layout_below="@id/temp_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                app:cardElevation="4dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/compare_temp_controls_container"
-                    android:layout_below="@id/temp_chart_controls_container"
-                    android:visibility="gone"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="20dp"
-                    tools:visibility="visible">
+                    android:layout_height="wrap_content">
 
-                    <LinearLayout
-                        android:id="@+id/compare_temp_titles_container"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp"
-                        android:weightSum="90">
+                        android:textSize="20sp"
+                        android:fontFamily="@font/varela_round"
+                        android:text="Luz"/>
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Día 1"
-                            android:gravity="center"
-                            android:layout_weight="30"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="30"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Día 2"
-                            android:gravity="center"
-                            android:layout_weight="30"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/temp_date_choosers_container"
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/compare_temp_titles_container"
-                        android:weightSum="90"
-                        android:orientation="horizontal">
+                        android:layout_height="120dp"
+                        android:layout_centerInParent="true">
 
-                        <Button
-                            android:id="@+id/temp_choose_x_day"
-                            android:layout_width="match_parent"
-                            android:layout_height="30dp"
-                            android:layout_weight="30"
-                            android:text="-"
-                            android:textAllCaps="false"
-                            android:background="@drawable/round_borders_button"/>
 
                         <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="30dp"
-                            android:layout_weight="30"
-                            android:textAllCaps="false"
-                            android:alpha="0.7"
-                            android:src="@drawable/right"/>
+                            android:layout_marginStart="3dp"
+                            android:layout_width="160dp"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/luminosity_full"
+                            android:layout_centerHorizontal="true"/>
 
-                        <Button
-                            android:id="@+id/temp_choose_y_day"
-                            android:layout_width="match_parent"
-                            android:layout_height="30dp"
-                            android:layout_weight="30"
-                            android:text="-"
-                            android:textAllCaps="false"
-                            android:background="@drawable/round_borders_button"/>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:layout_centerHorizontal="true">
 
+                            <TextView
+                                android:id="@+id/luminosity_value_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:fontFamily="@font/varela_round"
+                                android:gravity="center"
+                                android:text="0"
+                                android:textSize="25sp"
+                                tools:text="100"/>
 
-                    </LinearLayout>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:paddingTop="6dp"
+                                android:layout_marginStart="3dp"
+                                android:gravity="center"
+                                android:text="Ohms"/>
 
-                    <Button
-                        android:id="@+id/temp_compare_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="30dp"
-                        android:layout_below="@id/temp_date_choosers_container"
-                        android:layout_marginTop="25dp"
-                        android:layout_weight="30"
-                        android:text="Comparar"
-                        android:textAllCaps="false"
-                        android:layout_centerHorizontal="true"
-                        android:background="@drawable/round_borders_button"/>
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+                    <com.hookedonplay.decoviewlib.DecoView
+                        android:id="@+id/luminosity_decoview"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_margin="30dp"/>
 
                 </RelativeLayout>
 
-                <com.db.chart.view.HorizontalStackBarChartView
-                    xmlns:chart="http://schemas.android.com/apk/res-auto"
-                    android:visibility="gone"
-                    android:id="@+id/week_temp_barchart"
-                    android:layout_below="@id/week_temp_linechart"
-                    android:layout_width="match_parent"
-                    android:layout_height="180dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"/>
+            </android.support.v7.widget.CardView>
 
-            </RelativeLayout>
+            <android.support.v7.widget.CardView
+                android:id="@+id/graphs_card_layout"
+                android:layout_below="@id/luminosity_card_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="120dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                app:cardElevation="4dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/graph_title_text"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:fontFamily="@font/varela_round"
+                        android:text="Graphs"/>
+
+                    <TextView
+                        android:id="@+id/last_7_days_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_below="@id/graph_title_text"
+                        android:text="Últimos 7 días"/>
+
+                    <ImageButton
+                        android:id="@+id/fill_graph_button"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:background="@null"
+                        android:src="@drawable/dark_graph"
+                        android:alpha="0.4"
+                        android:scaleType="centerInside"
+                        android:layout_above="@id/week_temp_linechart"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="15dp"/>
+
+                    <ImageButton
+                        android:id="@+id/display_more_info_graph_button"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:background="@null"
+                        android:src="@drawable/more_info"
+                        android:alpha="0.6"
+                        android:scaleType="centerInside"
+                        android:layout_above="@id/week_temp_linechart"
+                        android:layout_toStartOf="@id/fill_graph_button"
+                        android:layout_marginEnd="15dp"/>
+
+                    <android.support.v7.widget.CardView
+                        android:id="@+id/temp_chart_value_card"
+                        android:layout_width="60dp"
+                        android:layout_height="30dp"
+                        android:layout_alignTop="@id/week_temp_linechart"
+                        android:layout_alignEnd="@id/week_temp_linechart"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
+                        app:cardElevation="4dp"
+                        android:visibility="invisible"
+                        tools:visibility="visible">
+                        <TextView
+                            android:id="@+id/temp_chart_value_card_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="100&#176;"/>
+                    </android.support.v7.widget.CardView>
+
+                    <com.db.chart.view.LineChartView
+                        xmlns:chart="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/week_temp_linechart"
+                        android:layout_width="match_parent"
+                        android:layout_below="@id/last_7_days_text"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"/>
+
+                    <com.db.chart.view.LineChartView
+                        xmlns:chart="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/hourly_temp_linechart"
+                        android:visibility="invisible"
+                        android:layout_width="match_parent"
+                        android:layout_below="@id/last_7_days_text"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"/>
+
+                    <com.db.chart.view.LineChartView
+                        xmlns:chart="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/compare_temp_linechart"
+                        android:visibility="invisible"
+                        android:layout_width="match_parent"
+                        android:layout_below="@id/last_7_days_text"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginEnd="15dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/temp_graph_legend_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/compare_temp_linechart"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:weightSum="100"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/temp_legend_a_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="50"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/temp_legend_a_view"
+                                android:layout_width="15dp"
+                                android:layout_height="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@drawable/round_background"/>
+
+                            <TextView
+                                android:id="@+id/temp_legend_a"
+                                android:layout_width="wrap_content"
+                                android:layout_height="25dp"
+                                android:gravity="center_vertical"
+                                android:layout_marginLeft="8dp"
+                                android:text="-"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/temp_legend_b_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="50"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/temp_legend_b_view"
+                                android:layout_width="15dp"
+                                android:layout_height="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@drawable/round_background"/>
+
+                            <TextView
+                                android:id="@+id/temp_legend_b"
+                                android:layout_width="wrap_content"
+                                android:layout_height="25dp"
+                                android:gravity="center_vertical"
+                                android:layout_marginLeft="8dp"
+                                android:text="-"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <ProgressBar
+                        android:id="@+id/compare_loading_progressbar"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:indeterminate="true"
+                        android:visibility="invisible"
+                        android:layout_alignTop="@id/compare_temp_linechart"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginEnd="18dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/temp_chart_controls_container"
+                        android:layout_below="@id/temp_graph_legend_container"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:weightSum="90"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="20dp">
+
+                        <Button
+                            android:id="@+id/temp_chart_week_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:layout_weight="30"
+                            android:text="Semana"
+                            android:textAllCaps="false"
+                            android:background="@drawable/left_button"/>
+
+                        <Button
+                            android:id="@+id/temp_chart_hours_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:layout_weight="30"
+                            android:text="Horas"
+                            android:textAllCaps="false"
+                            android:background="@drawable/center_button"/>
+
+                        <Button
+                            android:id="@+id/temp_chart_compare_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:layout_weight="30"
+                            android:text="Comparar"
+                            android:textAllCaps="false"
+                            android:background="@drawable/right_button"/>
+
+
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/compare_temp_controls_container"
+                        android:layout_below="@id/temp_chart_controls_container"
+                        android:visibility="gone"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="20dp"
+                        tools:visibility="visible">
+
+                        <LinearLayout
+                            android:id="@+id/compare_temp_titles_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp"
+                            android:weightSum="90">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Día 1"
+                                android:gravity="center"
+                                android:layout_weight="30"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="30"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Día 2"
+                                android:gravity="center"
+                                android:layout_weight="30"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/temp_date_choosers_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/compare_temp_titles_container"
+                            android:weightSum="90"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/temp_choose_x_day"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:layout_weight="30"
+                                android:text="-"
+                                android:textAllCaps="false"
+                                android:background="@drawable/round_borders_button"/>
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:layout_weight="30"
+                                android:textAllCaps="false"
+                                android:alpha="0.7"
+                                android:src="@drawable/right"/>
+
+                            <Button
+                                android:id="@+id/temp_choose_y_day"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:layout_weight="30"
+                                android:text="-"
+                                android:textAllCaps="false"
+                                android:background="@drawable/round_borders_button"/>
+
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/temp_compare_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:layout_below="@id/temp_date_choosers_container"
+                            android:layout_marginTop="25dp"
+                            android:layout_weight="30"
+                            android:text="Comparar"
+                            android:textAllCaps="false"
+                            android:layout_centerHorizontal="true"
+                            android:background="@drawable/round_borders_button"/>
+
+                    </RelativeLayout>
+                </RelativeLayout>
 
             </android.support.v7.widget.CardView>
 
@@ -465,7 +550,7 @@
         android:layout_height="match_parent"
         android:background="#77000000"
         android:visibility="invisible"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <android.support.v7.widget.CardView
             android:id="@+id/more_info_temp_card"

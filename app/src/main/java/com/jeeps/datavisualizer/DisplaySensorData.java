@@ -67,23 +67,30 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private static final int TEMP_DATE_Y = 1;
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
-    @BindView(R.id.humidity_decoview) DecoView mHumidityGraph;
+    @BindView(R.id.compare_temp_controls_container) RelativeLayout mTempCompareControlsLayout;
+    @BindView(R.id.humidity_decoview) DecoView mHumidityDecoView;
+    @BindView(R.id.luminosity_decoview) DecoView mLuminosityDecoView;
+
     @BindView(R.id.humidity_text) TextView mHumidityText;
+    @BindView(R.id.current_temp_text) TextView mCurrentTempText;
+    @BindView(R.id.last_7_days_text) TextView mTempChartDescriptionText;
+    @BindView(R.id.luminosity_value_text) TextView mLuminosityText;
+
     @BindView(R.id.week_temp_linechart) LineChartView mWeekTempChart;
     @BindView(R.id.hourly_temp_linechart) LineChartView mHourlyTempChart;
     @BindView(R.id.compare_temp_linechart) LineChartView mCompareTempChart;
-    @BindView(R.id.current_temp_text) TextView mCurrentTempText;
-    @BindView(R.id.last_7_days_text) TextView mTempChartDescriptionText;
+
     @BindView(R.id.thermometer_image) ImageView mThermometerImage;
-    @BindView(R.id.main_progress_bar) ProgressBar mMainProgressBar;
+
     @BindView(R.id.temp_chart_week_button) Button mWeekTempChartButton;
     @BindView(R.id.temp_chart_hours_button) Button mHoursTempChartButton;
     @BindView(R.id.temp_chart_compare_button) Button mCompareTempChartButton;
     @BindView(R.id.temp_choose_x_day) Button mChooseTempDateXButton;
     @BindView(R.id.temp_choose_y_day) Button mChooseTempDateYButton;
-    @BindView(R.id.compare_temp_controls_container) RelativeLayout mTempCompareControlsLayout;
-    @BindView(R.id.compare_loading_progressbar) ProgressBar mTempCompareProgressBar;
     @BindView(R.id.fill_graph_button) ImageButton mFillTempChartLinesButton;
+
+    @BindView(R.id.main_progress_bar) ProgressBar mMainProgressBar;
+    @BindView(R.id.compare_loading_progressbar) ProgressBar mTempCompareProgressBar;
 
     /* More info layout */
     @BindView(R.id.more_info_layout) RelativeLayout mMoreInfoLayout;
@@ -109,6 +116,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.temp_legend_b) TextView mTempLegendB;
 
     private int humidityDataIndex;
+    private int luminosityDataIndex;
     private String[] weekLabels;
     private String[] hourLabels;
     private final float[] weekDefault = {40,40,40,40,40,40,40};
@@ -197,9 +205,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         showTempLegend(TEMP_WEEK_GRAPH);
 
         //Humidity chart
-        mHumidityGraph.addSeries(getBackgroundTrack(0, 0, 100f));
+        mHumidityDecoView.addSeries(getBackgroundTrack(0, 0, 100f));
         //Create data series track
-        humidityDataIndex = mHumidityGraph.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
+        humidityDataIndex = mHumidityDecoView.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
+
+        //Luminosity chart
+        mLuminosityDecoView.addSeries(getBackgroundTrack(0, 0, 100f));
+        //Create data series track
+        luminosityDataIndex = mLuminosityDecoView.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
 
         /* ******Weekly temperature******* */
         mWeekTempSet0 = new LineSet(weekLabels, weekDefault);
@@ -350,17 +363,33 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @Override
     public void update(SensorData sensorData) {
         Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+
         //Compare temp
         getComparisonData(tempCompareDateX, tempCompareDateY);
+
         //Current humidity
         int humidity = (int) sensorData.getHumidity();
         //Display percentage
         String humidityPercent = String.format("%d%%", humidity);
         mHumidityText.setText(humidityPercent);
         //Animate
-        mHumidityGraph.addEvent(new DecoEvent.Builder(humidity).
-                setColor(getHumidityColor(humidity)).
-                setIndex(humidityDataIndex).setDelay(500).build());
+        mHumidityDecoView.addEvent(new DecoEvent.Builder(humidity)
+                .setColor(getHumidityColor(humidity))
+                .setIndex(humidityDataIndex)
+                .setDelay(500)
+                .build());
+
+        //Current luminosity
+        int luminosity = (int) sensorData.getLuminosity();
+        //Display on graph
+        String luminosityText = String.format("%d", luminosity);
+        mLuminosityText.setText(luminosityText);
+        //Animate
+        mLuminosityDecoView.addEvent(new DecoEvent.Builder(luminosity)
+                .setColor(Color.parseColor("#f0f0f0"))
+                .setIndex(luminosityDataIndex)
+                .setDelay(500)
+                .build());
 
         //Current temperature
         int currentTemp = (int) sensorData.getTemperature();

@@ -6,13 +6,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by jeeps on 2/19/2018.
@@ -47,6 +44,18 @@ public class SensorDataParser {
 
         //Set value to object
         mSensorData.setTemperature(temperature);
+    }
+
+    public void parseLuminosity(String jsonData) throws JSONException{
+        JSONObject mainObject = new JSONObject(jsonData);
+        //Get data array
+        JSONArray data = mainObject.getJSONArray("data");
+        //Get temperature from first item
+        String luminosityValue = data.getJSONObject(data.length() - 1).getString("valor");
+        double luminosity = Double.parseDouble(luminosityValue);
+
+        //Set value to object
+        mSensorData.setLuminosity(luminosity);
     }
 
     public void parseHourlyTemperature(String jsonData) throws JSONException {

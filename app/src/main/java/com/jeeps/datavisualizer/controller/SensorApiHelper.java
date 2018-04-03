@@ -1,18 +1,8 @@
 package com.jeeps.datavisualizer.controller;
 
 import android.app.Activity;
-import android.content.Context;
-import android.hardware.Sensor;
 import android.os.Handler;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.jeeps.datavisualizer.DisplaySensorData;
 import com.jeeps.datavisualizer.model.SensorData;
 
 import org.json.JSONException;
@@ -20,13 +10,11 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -52,13 +40,15 @@ public class SensorApiHelper {
 
     private boolean isHumidityCallComplete = false;
     private boolean isTemperatureCallComplete = false;
+    private boolean isLuminosityCallComplete = false;
     private boolean isHourlyTempComplete = false;
     private boolean isWeeklyTempComplete = false;
-    private int sumCheck = 0;
+
     public static final int HUMIDITY = 0;
     public static final int TEMPERATURE = 1;
-    private static final int HOURLY_TEMP = 2;
-    private static final int WEEKLY_TEMP = 3;
+    private static final int LUMINOSITY = 2;
+    private static final int HOURLY_TEMP = 3;
+    private static final int WEEKLY_TEMP = 4;
 
     public interface SensorApiListener {
         void update(SensorData sensorData);
@@ -109,6 +99,14 @@ public class SensorApiHelper {
                 .build();
         makeCall(temperatureRequest, TEMPERATURE);
 
+        //Current Luminosity callback
+        String luminosityUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.LUMINOSITY_SENSOR, currentDate);
+        Request luminosityRequest = new Request.Builder()
+                .url(luminosityUrl)
+                .build();
+        makeCall(luminosityRequest, LUMINOSITY);
+
+        /* GRAPHS */
         //Hourly Temperature callback
         String hourlyTemperatureUrl = ApiBuilder.buildValuesByHourUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, currentDate);
         Request hourlyTemperatureRequest = new Request.Builder()
@@ -174,6 +172,13 @@ public class SensorApiHelper {
                             //Mark completion
                             isTemperatureCallComplete = true;
                             break;
+                        case LUMINOSITY:
+                            //Parse data
+                            mSensorDataParser.parseLuminosity(jsonData);
+
+                            //Mark completion
+                            isLuminosityCallComplete = true;
+                            break;
                         case HOURLY_TEMP:
                             //Parse data
                             mSensorDataParser.parseHourlyTemperature(jsonData);
@@ -200,9 +205,10 @@ public class SensorApiHelper {
     }
 
     private void checkCompletion() {
-        if (isHumidityCallComplete && isTemperatureCallComplete && isWeeklyTempComplete) {
+        if (isHumidityCallComplete && isTemperatureCallComplete && isLuminosityCallComplete && isHourlyTempComplete && isWeeklyTempComplete) {
             isHumidityCallComplete = false;
             isTemperatureCallComplete = false;
+            isLuminosityCallComplete = false;
             isHourlyTempComplete = false;
             isWeeklyTempComplete = false;
 

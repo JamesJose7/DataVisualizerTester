@@ -9,6 +9,7 @@ public class ApiBuilder {
 
     public static final String TEMPERATURE_SENSOR = "TCA";
     public static final String HUMIDITY_SENSOR = "HUMA";
+    public static final String LUMINOSITY_SENSOR = "LUM";
 
     private static final String BASE_SENSOR_URL = "http://carbono.utpl.edu.ec:8080/smartlandiotv2/webresources/entidades.datos/getdatatable?ak=";
 
