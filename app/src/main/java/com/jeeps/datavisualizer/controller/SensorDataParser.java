@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static com.jeeps.datavisualizer.controller.SensorApiHelper.*;
+
 /**
  * Created by jeeps on 2/19/2018.
  */
@@ -58,7 +60,7 @@ public class SensorDataParser {
         mSensorData.setLuminosity(luminosity);
     }
 
-    public void parseHourlyTemperature(String jsonData) throws JSONException {
+    public void parseHourlyValues(String jsonData, int type) throws JSONException {
         JSONObject mainObject = new JSONObject(jsonData);
         //Get data array
         JSONArray data = mainObject.getJSONArray("data");
@@ -75,10 +77,20 @@ public class SensorDataParser {
             mins.add(Float.parseFloat(valueMin));
         }
 
-        mSensorData.setHourlyTemperature(maxs);
+        switch (type) {
+            case HOURLY_TEMP:
+                mSensorData.setHourlyTemperature(maxs);
+                break;
+            case HOURLY_HUM:
+                mSensorData.setHourlyHumidity(maxs);
+                break;
+            case HOURLY_LUM:
+                mSensorData.setHourlyLuminosity(maxs);
+                break;
+        }
     }
 
-    public void parseWeeklyTemp(String jsonData) throws JSONException {
+    public void parseWeeklyValues(String jsonData, int type) throws JSONException {
         JSONObject mainObject = new JSONObject(jsonData);
         //Get data array
         JSONArray data = mainObject.getJSONArray("data");
@@ -95,9 +107,22 @@ public class SensorDataParser {
             maxs.add(Float.parseFloat(max));
             mins.add(Float.parseFloat(min));
         }
+
         //Set value to object
-        mSensorData.setWeeklyTemperatureMax(maxs);
-        mSensorData.setWeeklyTemperatureMin(mins);
+        switch (type) {
+            case WEEKLY_TEMP:
+                mSensorData.setWeeklyTemperatureMax(maxs);
+                mSensorData.setWeeklyTemperatureMin(mins);
+                break;
+            case WEEKLY_HUM:
+                mSensorData.setWeeklyHumidityMax(maxs);
+                mSensorData.setWeeklyHumidityMin(mins);
+                break;
+            case WEEKLY_LUM:
+                mSensorData.setWeeklyLuminosityMax(maxs);
+                mSensorData.setWeeklyLuminosityMin(mins);
+                break;
+        }
     }
 
     public SensorData getSensorData() {

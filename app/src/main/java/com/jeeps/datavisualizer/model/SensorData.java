@@ -15,6 +15,12 @@ public class SensorData {
     private List<Float> weeklyTemperatureMin;
     private List<Float> weeklyTemperatureMax;
     private List<Float> hourlyTemperature;
+    private List<Float> weeklyHumidityMin;
+    private List<Float> weeklyHumidityMax;
+    private List<Float> hourlyHumidity;
+    private List<Float> weeklyLuminosityMin;
+    private List<Float> weeklyLuminosityMax;
+    private List<Float> hourlyLuminosity;
 
     public SensorData(double temperature, double humidity, double luminosity, List<Float> weeklyTemperatureMin, List<Float> weeklyTemperatureMax) {
         this.temperature = temperature;
@@ -27,6 +33,12 @@ public class SensorData {
         weeklyTemperatureMin = new ArrayList<>();
         weeklyTemperatureMax = new ArrayList<>();
         hourlyTemperature = new ArrayList<>();
+        weeklyHumidityMin = new ArrayList<>();
+        weeklyHumidityMax = new ArrayList<>();
+        hourlyHumidity = new ArrayList<>();
+        weeklyLuminosityMin = new ArrayList<>();
+        weeklyLuminosityMax = new ArrayList<>();
+        hourlyLuminosity = new ArrayList<>();
     }
 
     public double getTemperature() {
@@ -77,6 +89,54 @@ public class SensorData {
 
     public void setHourlyTemperature(List<Float> hourlyTemperature) {
         this.hourlyTemperature = hourlyTemperature;
+    }
+
+    public List<Float> getWeeklyHumidityMin() {
+        return weeklyHumidityMin;
+    }
+
+    public void setWeeklyHumidityMin(List<Float> weeklyHumidityMin) {
+        this.weeklyHumidityMin = weeklyHumidityMin;
+    }
+
+    public List<Float> getWeeklyHumidityMax() {
+        return weeklyHumidityMax;
+    }
+
+    public void setWeeklyHumidityMax(List<Float> weeklyHumidityMax) {
+        this.weeklyHumidityMax = weeklyHumidityMax;
+    }
+
+    public List<Float> getHourlyHumidity() {
+        return hourlyHumidity;
+    }
+
+    public void setHourlyHumidity(List<Float> hourlyHumidity) {
+        this.hourlyHumidity = hourlyHumidity;
+    }
+
+    public List<Float> getWeeklyLuminosityMin() {
+        return weeklyLuminosityMin;
+    }
+
+    public void setWeeklyLuminosityMin(List<Float> weeklyLuminosityMin) {
+        this.weeklyLuminosityMin = weeklyLuminosityMin;
+    }
+
+    public List<Float> getWeeklyLuminosityMax() {
+        return weeklyLuminosityMax;
+    }
+
+    public void setWeeklyLuminosityMax(List<Float> weeklyLuminosityMax) {
+        this.weeklyLuminosityMax = weeklyLuminosityMax;
+    }
+
+    public List<Float> getHourlyLuminosity() {
+        return hourlyLuminosity;
+    }
+
+    public void setHourlyLuminosity(List<Float> hourlyLuminosity) {
+        this.hourlyLuminosity = hourlyLuminosity;
     }
 }
 

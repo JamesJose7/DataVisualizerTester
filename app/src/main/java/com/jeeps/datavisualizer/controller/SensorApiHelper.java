@@ -43,12 +43,20 @@ public class SensorApiHelper {
     private boolean isLuminosityCallComplete = false;
     private boolean isHourlyTempComplete = false;
     private boolean isWeeklyTempComplete = false;
+    private boolean isHourlyHumComplete = false;
+    private boolean isWeeklyHumComplete = false;
+    private boolean isHourlyLumComplete = false;
+    private boolean isWeeklyLumComplete = false;
 
-    public static final int HUMIDITY = 0;
-    public static final int TEMPERATURE = 1;
-    private static final int LUMINOSITY = 2;
-    private static final int HOURLY_TEMP = 3;
-    private static final int WEEKLY_TEMP = 4;
+    protected static final int HUMIDITY = 0;
+    protected static final int TEMPERATURE = 1;
+    protected static final int LUMINOSITY = 2;
+    protected static final int HOURLY_TEMP = 3;
+    protected static final int WEEKLY_TEMP = 4;
+    protected static final int HOURLY_HUM = 5;
+    protected static final int WEEKLY_HUM = 6;
+    protected static final int HOURLY_LUM = 7;
+    protected static final int WEEKLY_LUM = 8;
 
     public interface SensorApiListener {
         void update(SensorData sensorData);
@@ -107,6 +115,7 @@ public class SensorApiHelper {
         makeCall(luminosityRequest, LUMINOSITY);
 
         /* GRAPHS */
+        String previousDate = mDateFormat.format(SensorDataParser.getPreviousDayDate(6));
         //Hourly Temperature callback
         String hourlyTemperatureUrl = ApiBuilder.buildValuesByHourUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, currentDate);
         Request hourlyTemperatureRequest = new Request.Builder()
@@ -115,12 +124,39 @@ public class SensorApiHelper {
         makeCall(hourlyTemperatureRequest, HOURLY_TEMP);
 
         //Weekly Temperature callback
-        String previousDate = mDateFormat.format(SensorDataParser.getPreviousDayDate(6));
         String weeklyTemperatureUrl = ApiBuilder.buildValuesByDateRangeUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, previousDate, currentDate);
         Request weeklyTemperatureRequest = new Request.Builder()
                 .url(weeklyTemperatureUrl)
                 .build();
         makeCall(weeklyTemperatureRequest, WEEKLY_TEMP);
+
+        //Hourly Humidity callback
+        String hourlyHumidityUrl = ApiBuilder.buildValuesByHourUrl("node_01", ApiBuilder.HUMIDITY_SENSOR, currentDate);
+        Request hourlyHumidityRequest = new Request.Builder()
+                .url(hourlyHumidityUrl)
+                .build();
+        makeCall(hourlyHumidityRequest, HOURLY_HUM);
+
+        //Weekly Humidity callback
+        String weeklyHumidityUrl = ApiBuilder.buildValuesByDateRangeUrl("node_01", ApiBuilder.HUMIDITY_SENSOR, previousDate, currentDate);
+        Request weeklyHumidityRequest = new Request.Builder()
+                .url(weeklyHumidityUrl)
+                .build();
+        makeCall(weeklyHumidityRequest, WEEKLY_HUM);
+
+        //Hourly Luminosity callback
+        String hourlyLuminosityUrl = ApiBuilder.buildValuesByHourUrl("node_01", ApiBuilder.LUMINOSITY_SENSOR, currentDate);
+        Request hourlyLuminosityRequest = new Request.Builder()
+                .url(hourlyLuminosityUrl)
+                .build();
+        makeCall(hourlyLuminosityRequest, HOURLY_LUM);
+
+        //Weekly Luminosity callback
+        String weeklyLuminosityUrl = ApiBuilder.buildValuesByDateRangeUrl("node_01", ApiBuilder.LUMINOSITY_SENSOR, previousDate, currentDate);
+        Request weeklyLuminosityRequest = new Request.Builder()
+                .url(weeklyLuminosityUrl)
+                .build();
+        makeCall(weeklyLuminosityRequest, WEEKLY_LUM);
     }
 
     public SensorData requestPreviousDayData(Date date) throws IOException, JSONException {
@@ -139,7 +175,7 @@ public class SensorApiHelper {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            sensorDataParser.parseHourlyTemperature(response.body().string());
+            sensorDataParser.parseHourlyValues(response.body().string(), HOURLY_TEMP);
             return sensorDataParser.getSensorData();
         }
     }
@@ -161,37 +197,58 @@ public class SensorApiHelper {
                         case HUMIDITY:
                             //Parse data
                             mSensorDataParser.parseHumidity(jsonData);
-
                             //Mark completion
                             isHumidityCallComplete = true;
                             break;
                         case TEMPERATURE:
                             //Parse data
                             mSensorDataParser.parseTemperature(jsonData);
-
                             //Mark completion
                             isTemperatureCallComplete = true;
                             break;
                         case LUMINOSITY:
                             //Parse data
                             mSensorDataParser.parseLuminosity(jsonData);
-
                             //Mark completion
                             isLuminosityCallComplete = true;
                             break;
+
+                            /* GRAPH */
                         case HOURLY_TEMP:
                             //Parse data
-                            mSensorDataParser.parseHourlyTemperature(jsonData);
-
+                            mSensorDataParser.parseHourlyValues(jsonData, HOURLY_TEMP);
                             //Mark completion
                             isHourlyTempComplete = true;
                             break;
                         case WEEKLY_TEMP:
                             //Parse data
-                            mSensorDataParser.parseWeeklyTemp(jsonData);
-
+                            mSensorDataParser.parseWeeklyValues(jsonData, WEEKLY_TEMP);
                             //Mark completion
                             isWeeklyTempComplete = true;
+                            break;
+                        case HOURLY_HUM:
+                            //Parse data
+                            mSensorDataParser.parseHourlyValues(jsonData, HOURLY_HUM);
+                            //Mark completion
+                            isHourlyHumComplete = true;
+                            break;
+                        case WEEKLY_HUM:
+                            //Parse data
+                            mSensorDataParser.parseWeeklyValues(jsonData, WEEKLY_HUM);
+                            //Mark completion
+                            isWeeklyHumComplete = true;
+                            break;
+                        case HOURLY_LUM:
+                            //Parse data
+                            mSensorDataParser.parseHourlyValues(jsonData, HOURLY_LUM);
+                            //Mark completion
+                            isHourlyLumComplete = true;
+                            break;
+                        case WEEKLY_LUM:
+                            //Parse data
+                            mSensorDataParser.parseWeeklyValues(jsonData, WEEKLY_LUM);
+                            //Mark completion
+                            isWeeklyLumComplete = true;
                             break;
                         default:
                     }
@@ -205,12 +262,19 @@ public class SensorApiHelper {
     }
 
     private void checkCompletion() {
-        if (isHumidityCallComplete && isTemperatureCallComplete && isLuminosityCallComplete && isHourlyTempComplete && isWeeklyTempComplete) {
+        if (isHumidityCallComplete && isTemperatureCallComplete && isLuminosityCallComplete
+                && isHourlyTempComplete && isWeeklyTempComplete
+                && isHourlyHumComplete && isWeeklyHumComplete
+                && isHourlyLumComplete && isWeeklyLumComplete) {
             isHumidityCallComplete = false;
             isTemperatureCallComplete = false;
             isLuminosityCallComplete = false;
             isHourlyTempComplete = false;
             isWeeklyTempComplete = false;
+            isHourlyHumComplete = false;
+            isWeeklyHumComplete = false;
+            isHourlyLumComplete = false;
+            isWeeklyLumComplete = false;
 
             mActivity.runOnUiThread(new Runnable() {
                 @Override
