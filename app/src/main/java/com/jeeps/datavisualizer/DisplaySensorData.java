@@ -319,7 +319,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Luminosity chart
         mLuminosityDecoView.addSeries(getBackgroundTrack(0, 0, 100f));
         //Create data series track
-        luminosityDataIndex = mLuminosityDecoView.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
+        luminosityDataIndex = mLuminosityDecoView.addSeries(createDataSeries(0, 0, 100f, 0, "#121931"));
 
         resetGraphs();
 
@@ -449,7 +449,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mLuminosityText.setText(luminosityText);
         //Animate
         mLuminosityDecoView.addEvent(new DecoEvent.Builder(luminosity)
-                .setColor(Color.parseColor("#f0f0f0"))
+                .setColor(getLuminosityColor(luminosity))
                 .setIndex(luminosityDataIndex)
                 .setDelay(500)
                 .build());
@@ -459,7 +459,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mCurrentTempText.setText(String.format("%d\u00b0", currentTemp));
         //Set thermometer image accordingly
         mThermometerImage.setImageResource(getPercentageTermometer(currentTemp));
-        
+
         selectGraphDisplayValues();
 
         //Delay the first data load on graphs since they take some time to initialize properly
@@ -656,6 +656,19 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         if (humidity >= 66)
             return Color.parseColor(above);
         else if (humidity >= 33)
+            return Color.parseColor(average);
+        else
+            return Color.parseColor(below);
+    }
+
+    private int getLuminosityColor(int luminosity) {
+        String below = "#273669";
+        String average = "#ff3814";
+        String above = "#ffff1a";
+
+        if (luminosity >= 66)
+            return Color.parseColor(above);
+        else if (luminosity >= 33)
             return Color.parseColor(average);
         else
             return Color.parseColor(below);
