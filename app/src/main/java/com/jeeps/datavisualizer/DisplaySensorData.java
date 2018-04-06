@@ -3,6 +3,7 @@ package com.jeeps.datavisualizer;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
@@ -554,6 +555,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         }
         if (mHourlyValues.length > 7) {
             mHourlyValues = shrinkArray(mHourlyValues, 7);
+        } else if (mHourlyValues.length < 7) {
+            float[] fixedArray = new float[7];
+            for (int i = 0; i < mHourlyValues.length; i++)
+                fixedArray[i] = mHourlyValues[i];
+            mHourlyValues = fixedArray;
         }
 
         //Compare temp
@@ -593,12 +599,22 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                     //Check if arrays are bigger than 7
                     if (originalDataX.size() > 7)
                         dataTempX = shrinkArray(listToArray(originalDataX), 7);
-                    else
+                    else if (originalDataX.size() < 7) {
+                        float[] fixedArray = new float[7];
+                        for (int i = 0; i < originalDataX.size(); i++)
+                            fixedArray[i] = originalDataX.get(i);
+                        dataTempX = fixedArray;
+                    } else
                         dataTempX = listToArray(originalDataX);
 
                     if (originalDataY.size() > 7)
                         dataTempY = shrinkArray(listToArray(originalDataY), 7);
-                    else
+                    else if (originalDataY.size() < 7) {
+                        float[] fixedArray = new float[7];
+                        for (int i = 0; i < originalDataY.size(); i++)
+                            fixedArray[i] = originalDataY.get(i);
+                        dataTempY = fixedArray;
+                    } else
                         dataTempY = listToArray(originalDataY);
 
                     runOnUiThread(new Runnable() {
@@ -1050,6 +1066,41 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         });
 
         mExpandFromMiddleCardAnimation.start();
+    }
+
+    @OnClick(R.id.share_humidity)
+    protected void shareHumidity() {
+        if (mSensorData != null) {
+            String msg = String.format("La %s actual en la UTPL es de: %.2f%s. Via SmartLandUTPL.",
+                    "humedad", mSensorData.getHumidity(), "%");
+            shareData(msg, "Humedad");
+        }
+    }
+
+    @OnClick(R.id.share_temperature)
+    protected void shareTemperature() {
+        if (mSensorData != null) {
+            String msg = String.format("La %s actual en la UTPL es de: %.2f%s. Via SmartLandUTPL.",
+                    "temperatura", mSensorData.getTemperature(), "\u00b0");
+            shareData(msg, "Temperatura");
+        }
+    }
+
+    @OnClick(R.id.share_luminosity)
+    protected void shareLuminosity() {
+        if (mSensorData != null) {
+            String msg = String.format("La %s actual en la UTPL es de: %.2f%s. Via SmartLandUTPL.",
+                    "luminosidad", mSensorData.getLuminosity(), " Ohms");
+            shareData(msg, "Luminosidad");
+        }
+    }
+
+    private void shareData(String msg, String subject) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, msg);
+        startActivity(Intent.createChooser(shareIntent, "Compartir en..."));
     }
 
     @Override
