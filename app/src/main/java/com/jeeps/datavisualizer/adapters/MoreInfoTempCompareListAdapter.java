@@ -35,13 +35,15 @@ public class MoreInfoTempCompareListAdapter extends RecyclerView.Adapter<MoreInf
     private float[] mDataY;
     private Date mDateX;
     private Date mDateY;
+    private int mSelectedGraph;
 
-    public MoreInfoTempCompareListAdapter(Context context, float[] dataX, float[] dataY, Date dateX, Date dateY) {
+    public MoreInfoTempCompareListAdapter(Context context, float[] dataX, float[] dataY, Date dateX, Date dateY, int selectedGraph) {
         mContext = context;
         mDataX = dataX;
         mDataY = dataY;
         mDateX = dateX;
         mDateY = dateY;
+        mSelectedGraph = selectedGraph;
     }
 
     @Override
@@ -103,12 +105,9 @@ public class MoreInfoTempCompareListAdapter extends RecyclerView.Adapter<MoreInf
             //Cap first letter
             dayOfWeek = dayOfWeek.substring(0, 1).toUpperCase() + dayOfWeek.substring(1);
             dateOfMonth = dateOfMonth.substring(0, 1).toUpperCase() + dateOfMonth.substring(1);
-            //Get values
-            int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) dataXValue);
             //bind data
             mMainDescription.setText(dayOfWeek + " " + dateOfMonth);
             mSecondaryDescription.setText(currentHour);
-            mImage.setImageResource(thermometerDrawable);
             mFirstValue.setText(String.format("%.2f\u00b0", dataXValue));
 
             /*Second day*/
@@ -122,13 +121,26 @@ public class MoreInfoTempCompareListAdapter extends RecyclerView.Adapter<MoreInf
             //Cap first letter
             dayOfWeek2 = dayOfWeek2.substring(0, 1).toUpperCase() + dayOfWeek2.substring(1);
             dateOfMonth2 = dateOfMonth2.substring(0, 1).toUpperCase() + dateOfMonth2.substring(1);
-            //Get values
-            int thermometerDrawable2 = DisplaySensorData.getPercentageTermometer((int) dataYValue);
+
             //bind data
             mMainDescription2.setText(dayOfWeek2 + " " + dateOfMonth2);
             mSecondaryDescription2.setText(currentHour2);
-            mImage2.setImageResource(thermometerDrawable2);
             mFirstValue2.setText(String.format("%.2f\u00b0", dataYValue));
+
+            if (mSelectedGraph == DisplaySensorData.TEMP_GRAPH) {
+                //Date 1
+                int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) dataXValue);
+                //Date 2
+                int thermometerDrawable2 = DisplaySensorData.getPercentageTermometer((int) dataYValue);
+                mImage.setImageResource(thermometerDrawable);
+                mImage2.setImageResource(thermometerDrawable2);
+            } else if (mSelectedGraph == DisplaySensorData.HUM_GRAPH) {
+                mImage.setImageResource(R.drawable.drop);
+                mImage2.setImageResource(R.drawable.drop);
+            } else {
+                mImage.setImageResource(R.drawable.luminosity_medium);
+                mImage2.setImageResource(R.drawable.luminosity_medium);
+            }
 
         }
     }

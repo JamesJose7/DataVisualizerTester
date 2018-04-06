@@ -243,6 +243,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                         }
                     });
                     thread.start();
+
+                    //More Info
+                    initializeMoreInfoAdapters();
                 }
             }
 
@@ -477,12 +480,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         }
 
-        //More Info temperature
+        //More Info
+        initializeMoreInfoAdapters();
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void initializeMoreInfoAdapters() {
         mMoreInfoTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
         mMoreInfoHourlyTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
 
-        mMoreInfoTempListAdapter = new MoreInfoTempListAdapter(this, sensorData.getWeeklyTemperatureMax(), sensorData, MoreInfoTempListAdapter.LAST_7_DAYS);
-        mMoreInfoHourlyTempListAdapter = new MoreInfoTempListAdapter(this, sensorData.getWeeklyTemperatureMax(), sensorData, MoreInfoTempListAdapter.LAST_7_HOURS);
+        mMoreInfoTempListAdapter = new MoreInfoTempListAdapter(this,
+                mSensorData.getWeeklyTemperatureMax(), mSensorData, MoreInfoTempListAdapter.LAST_7_DAYS, currentGraph);
+        mMoreInfoHourlyTempListAdapter = new MoreInfoTempListAdapter(this,
+                mSensorData.getHourlyTemperature(), mSensorData, MoreInfoTempListAdapter.LAST_7_HOURS, currentGraph);
 
         mMoreInfoTempRecyclerView.setAdapter(mMoreInfoTempListAdapter);
         mMoreInfoHourlyTempRecyclerView.setAdapter(mMoreInfoHourlyTempListAdapter);
@@ -493,8 +504,6 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //mMoreInfoTempRecyclerView.setHasFixedSize(true);
         mMoreInfoHourlyTempRecyclerView.setLayoutManager(layoutManager2);
         //mMoreInfoHourlyTempRecyclerView.setHasFixedSize(true);
-
-        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private float[] shrinkArray(float[] array, int newSize) {
@@ -602,7 +611,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
                             mMoreInfoCompareTempRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(DisplaySensorData.this));
                             mMoreInfoTempCompareListAdapter = new MoreInfoTempCompareListAdapter(DisplaySensorData.this,
-                                    originalTempX, originalTempY, dateX, dateY);
+                                    originalTempX, originalTempY, dateX, dateY, currentGraph);
                             mMoreInfoCompareTempRecyclerView.setAdapter(mMoreInfoTempCompareListAdapter);
 
                             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DisplaySensorData.this);
@@ -610,7 +619,6 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                             //mMoreInfoCompareTempRecyclerView.setHasFixedSize(true);
                         }
                     });
-
 
 
                 } catch (IOException e) {

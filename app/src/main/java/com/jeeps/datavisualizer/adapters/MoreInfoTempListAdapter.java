@@ -37,17 +37,29 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
     private SimpleDateFormat hourFormatter = new SimpleDateFormat("HH", new Locale("es", "EC"));
 
     private Context mContext;
-    private List<Float> mTemperatures;
+    private List<Float> mData;
     private SensorData mSensorData;
     private List<Float> mHourlyTemperatures;
     private int mType;
+    private int mSelectedGraph;
 
-    public MoreInfoTempListAdapter(Context context, List<Float> temperatures, SensorData sensorData, int type) {
+    public MoreInfoTempListAdapter(Context context, List<Float> data, SensorData sensorData, int type, int selectedGraph) {
         mContext = context;
-        mTemperatures = temperatures;
+        mData = data;
         mSensorData = sensorData;
         mType = type;
-        mHourlyTemperatures = new ArrayList<>(mSensorData.getHourlyTemperature());
+        mSelectedGraph = selectedGraph;
+
+        List<Float> hourlyTemperatures;
+        if (selectedGraph == DisplaySensorData.TEMP_GRAPH) {
+            hourlyTemperatures = mSensorData.getHourlyTemperature();
+        } else if (selectedGraph == DisplaySensorData.HUM_GRAPH) {
+            hourlyTemperatures = mSensorData.getHourlyHumidity();
+        } else {
+            hourlyTemperatures = mSensorData.getHourlyLuminosity();
+        }
+
+        mHourlyTemperatures = new ArrayList<>(hourlyTemperatures);
         Collections.reverse(mHourlyTemperatures);
     }
 
@@ -61,7 +73,7 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
     @Override
     public void onBindViewHolder(MoreInfoTempViewHolder holder, int position) {
         if (mType == LAST_7_DAYS)
-            holder.bindSensorData(mSensorData, mTemperatures.get(position), position);
+            holder.bindSensorData(mSensorData, mData.get(position), position);
         else
             holder.bindSensorData(mSensorData, mHourlyTemperatures.get(position), position);
 
@@ -70,7 +82,7 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
     @Override
     public int getItemCount() {
         if (mType == LAST_7_DAYS)
-            return mTemperatures.size();
+            return mData.size();
         else
             return mHourlyTemperatures.size();
     }
@@ -90,6 +102,9 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
         }
 
         public void bindSensorData(SensorData sensorData, float temperature, int position) {
+
+
+
             if (mType == LAST_7_DAYS) {
                 //Date
                 Date date = SensorDataParser.getPreviousDayDate(position);
@@ -99,13 +114,32 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
                 dayOfWeek = dayOfWeek.substring(0, 1).toUpperCase() + dayOfWeek.substring(1);
                 dateOfMonth = dateOfMonth.substring(0, 1).toUpperCase() + dateOfMonth.substring(1);
                 //Get values
-                float maxTemp = sensorData.getWeeklyTemperatureMax().get(position);
-                float minTemp = sensorData.getWeeklyTemperatureMin().get(position);
-                int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) maxTemp);
+                float maxTemp;
+                float minTemp;
+                int invertedPosition = 6 - position;
+                if (mSelectedGraph == DisplaySensorData.TEMP_GRAPH) {
+                    maxTemp = sensorData.getWeeklyTemperatureMax().get(invertedPosition);
+                    minTemp = sensorData.getWeeklyTemperatureMin().get(invertedPosition);
+                } else if (mSelectedGraph == DisplaySensorData.HUM_GRAPH) {
+                    maxTemp = sensorData.getWeeklyHumidityMax().get(invertedPosition);
+                    minTemp = sensorData.getWeeklyHumidityMin().get(invertedPosition);
+                } else {
+                    maxTemp = sensorData.getWeeklyLuminosityMax().get(invertedPosition);
+                    minTemp = sensorData.getWeeklyLuminosityMin().get(invertedPosition);
+                }
+
                 //bind data
+                if (mSelectedGraph == DisplaySensorData.TEMP_GRAPH) {
+                    int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) maxTemp);
+                    mImage.setImageResource(thermometerDrawable);
+                } else if (mSelectedGraph == DisplaySensorData.HUM_GRAPH) {
+                    mImage.setImageResource(R.drawable.drop);
+                } else {
+                    mImage.setImageResource(R.drawable.luminosity_medium);
+                }
+
                 mMainDescription.setText(dayOfWeek);
                 mSecondaryDescription.setText(dateOfMonth);
-                mImage.setImageResource(thermometerDrawable);
                 mFirstValue.setText(String.format("%.2f\u00b0", maxTemp));
                 mSecondaryValue.setText(String.format("%.2f\u00b0", minTemp));
             } else if (mType == LAST_7_HOURS) {
@@ -120,11 +154,18 @@ public class MoreInfoTempListAdapter extends RecyclerView.Adapter<MoreInfoTempLi
                     previousHours = "Actualmente";
                 //Get values
                 float temp = mHourlyTemperatures.get(position);
-                int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) temp);
+
                 //Bind data
+                if (mSelectedGraph == DisplaySensorData.TEMP_GRAPH) {
+                    int thermometerDrawable = DisplaySensorData.getPercentageTermometer((int) temp);
+                    mImage.setImageResource(thermometerDrawable);
+                } else if (mSelectedGraph == DisplaySensorData.HUM_GRAPH) {
+                    mImage.setImageResource(R.drawable.drop);
+                } else {
+                    mImage.setImageResource(R.drawable.luminosity_medium);
+                }
                 mMainDescription.setText(currentHour);
                 mSecondaryDescription.setText(previousHours);
-                mImage.setImageResource(thermometerDrawable);
                 mFirstValue.setText(String.format("%.2f\u00b0", temp));
                 mSecondaryValue.setText("");
             }

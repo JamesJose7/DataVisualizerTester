@@ -75,7 +75,6 @@ public class SensorData {
     }
 
     public List<Float> getWeeklyTemperatureMax() {
-        Collections.reverse(weeklyTemperatureMax);
         return weeklyTemperatureMax;
     }
 
