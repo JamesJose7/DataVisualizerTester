@@ -3,6 +3,7 @@ package com.jeeps.datavisualizer.controller;
 import android.app.Activity;
 import android.os.Handler;
 
+import com.jeeps.datavisualizer.DisplaySensorData;
 import com.jeeps.datavisualizer.model.SensorData;
 
 import org.json.JSONException;
@@ -159,15 +160,26 @@ public class SensorApiHelper {
         makeCall(weeklyLuminosityRequest, WEEKLY_LUM);
     }
 
-    public SensorData requestPreviousDayData(Date date) throws IOException, JSONException {
+    public SensorData requestPreviousDayData(Date date, int type) throws IOException, JSONException {
         String formattedDate = mDateFormat.format(date);
+
+        //Get appropriate graph
+        int selectedGraph = HOURLY_TEMP;
+        String sensor = ApiBuilder.TEMPERATURE_SENSOR;
+        if (type == DisplaySensorData.HUM_GRAPH) {
+            selectedGraph = HOURLY_HUM;
+            sensor = ApiBuilder.HUMIDITY_SENSOR;
+        } else if (type == DisplaySensorData.LUM_GRAPH) {
+            selectedGraph = HOURLY_LUM;
+            sensor = ApiBuilder.LUMINOSITY_SENSOR;
+        }
 
         //New sensor data to be returned
         SensorData sensorData = new SensorData();
         SensorDataParser sensorDataParser = new SensorDataParser(sensorData);
 
-        //Temperature callback
-        String temperatureUrl = ApiBuilder.buildValuesByHourUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, formattedDate);
+        //callback
+        String temperatureUrl = ApiBuilder.buildValuesByHourUrl("node_01", sensor, formattedDate);
         Request request = new Request.Builder()
                 .url(temperatureUrl)
                 .build();
@@ -175,7 +187,7 @@ public class SensorApiHelper {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            sensorDataParser.parseHourlyValues(response.body().string(), HOURLY_TEMP);
+            sensorDataParser.parseHourlyValues(response.body().string(), selectedGraph);
             return sensorDataParser.getSensorData();
         }
     }

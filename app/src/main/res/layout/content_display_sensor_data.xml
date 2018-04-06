@@ -230,13 +230,24 @@
                         android:fontFamily="@font/varela_round"
                         android:text="Graphs"/>
 
+                    <Spinner
+                        android:id="@+id/graph_spinner_chooser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/graph_title_text"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginBottom="10dp">
+
+                    </Spinner>
+
                     <TextView
                         android:id="@+id/last_7_days_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:layout_marginLeft="10dp"
-                        android:layout_below="@id/graph_title_text"
+                        android:layout_below="@id/graph_spinner_chooser"
                         android:text="Últimos 7 días"/>
 
                     <ImageButton

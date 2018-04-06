@@ -17,12 +17,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +66,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     public static final int TEMP_WEEK_GRAPH = 0;
     public static final int TEMP_HOURS_GRAPH = 1;
     public static final int TEMP_COMPARE_GRAPH = 2;
+    public static final int TEMP_GRAPH = 11;
+    public static final int HUM_GRAPH = 12;
+    public static final int LUM_GRAPH = 13;
     private static final int TEMP_DATE_X = 0;
     private static final int TEMP_DATE_Y = 1;
 
@@ -81,6 +87,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.compare_temp_linechart) LineChartView mCompareTempChart;
 
     @BindView(R.id.thermometer_image) ImageView mThermometerImage;
+
+    @BindView(R.id.graph_spinner_chooser) Spinner mGraphSpinnerChooser;
 
     @BindView(R.id.temp_chart_week_button) Button mWeekTempChartButton;
     @BindView(R.id.temp_chart_hours_button) Button mHoursTempChartButton;
@@ -119,10 +127,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private int luminosityDataIndex;
     private String[] weekLabels;
     private String[] hourLabels;
-    private final float[] weekDefault = {40,40,40,40,40,40,40};
-    private float[] mWeekTempMax;
-    private float[] mWeekTempMin;
-    private float[] mHourlyTemp;
+    private final float[] maximumTempValues = {40,40,40,40,40,40,40};
+    private final float[] maximumHumValues = {100,100,100,100,100,100,100};
+    private float[] mWeekValuesMax;
+    private float[] mWeekValuesMin;
+    private float[] mHourlyValues;
 
     private SimpleDateFormat dayFormatter = new SimpleDateFormat("E", new Locale("es", "EC"));
     private SimpleDateFormat hourFormatter = new SimpleDateFormat("h aa", Locale.US);
@@ -131,6 +140,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private boolean firstLoad = true;
     private boolean fillTempChartLines = false;
     private int currentTempGraph = TEMP_WEEK_GRAPH;
+    private int currentGraph = TEMP_GRAPH;
     private int choosingDate;
     private Date tempCompareDateX;
     private Date tempCompareDateY;
@@ -143,6 +153,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private LineSet mCompareTempSet1;
     private AnimatorSet mFadeInAndOut;
     private AnimatorSet mExpandFromMiddleCardAnimation;
+    private SensorData mSensorData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +174,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         tempCompareDateY = SensorDataParser.getPreviousDayDate(1);
         changeCompareButtonsText();
 
+        initializeGraphSpinner();
         initializeGraphs();
 
         //Initialize connection with api
@@ -184,17 +196,112 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                 mMoreInfoLayout.setVisibility(View.INVISIBLE);
             }
         });
+    }
 
+    private void initializeGraphSpinner() {
+        //Spinner items
+        List<String> spinnerItems = new ArrayList<>();
+        spinnerItems.add("Temperatura");
+        spinnerItems.add("Humedad");
+        spinnerItems.add("Luminosidad");
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        //Spinner adapter
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, spinnerItems);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mGraphSpinnerChooser.setAdapter(spinnerAdapter);
+
+        //Add listener on spinner item selection
+        mGraphSpinnerChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                //Update data
-                Snackbar.make(view, "Data updated", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                //Update charts with corresponding values
+                currentGraph = TEMP_GRAPH;
+                if (pos == 1)
+                    currentGraph = HUM_GRAPH;
+                else if (pos == 2)
+                    currentGraph = LUM_GRAPH;
+
+                if (!firstLoad) {
+                    resetGraphs();
+                    selectGraphDisplayValues();
+
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(2000);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateCharts();
+                                    }
+                                });
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    thread.start();
+                }
             }
-        });*/
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private void resetGraphs() {
+        //Change graph linesets
+        int step = 5;
+        if (currentGraph == TEMP_GRAPH) {
+            mWeekTempSet0 = new LineSet(weekLabels, maximumTempValues);
+            mWeekTempSet1 = new LineSet(weekLabels, maximumTempValues);
+            mHourTempSet0 = new LineSet(hourLabels, maximumTempValues);
+            mCompareTempSet0 = new LineSet(hourLabels, maximumTempValues);
+            mCompareTempSet1 = new LineSet(hourLabels, maximumTempValues);
+        } else if (currentGraph == HUM_GRAPH || currentGraph == LUM_GRAPH) {
+            mWeekTempSet0 = new LineSet(weekLabels, maximumHumValues);
+            mWeekTempSet1 = new LineSet(weekLabels, maximumHumValues);
+            mHourTempSet0 = new LineSet(hourLabels, maximumHumValues);
+            mCompareTempSet0 = new LineSet(hourLabels, maximumHumValues);
+            mCompareTempSet1 = new LineSet(hourLabels, maximumHumValues);
+            step = 10;
+        }
+
+        mWeekTempSet0.setColor(Color.parseColor("#53c1bd"));
+        mWeekTempSet1.setColor(Color.parseColor("#5b5cbd"));
+        mHourTempSet0.setColor(Color.parseColor("#FFD700"));
+        mCompareTempSet0.setColor(Color.parseColor("#c15357"));
+        mCompareTempSet1.setColor(Color.parseColor("#53C186"));
+
+        //Weekly graph
+        mWeekTempChart.invalidate();
+        mWeekTempChart.reset();
+        mWeekTempChart.addData(mWeekTempSet0);
+        mWeekTempChart.addData(mWeekTempSet1);
+        mWeekTempChart
+                .setStep(step)
+                .show(new Animation());
+
+        //Hourly graph
+        mHourlyTempChart.invalidate();
+        mHourlyTempChart.reset();
+        mHourlyTempChart.addData(mHourTempSet0);
+        mHourlyTempChart
+                .setStep(step)
+                .show(new Animation());
+
+        //Compare graph
+        mCompareTempChart.invalidate();
+        mCompareTempChart.reset();
+        mCompareTempChart.addData(mCompareTempSet0);
+        mCompareTempChart.addData(mCompareTempSet1);
+        mCompareTempChart
+                .setStep(step)
+                .show(new Animation());
     }
 
     /**
@@ -214,53 +321,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Create data series track
         luminosityDataIndex = mLuminosityDecoView.addSeries(createDataSeries(0, 0, 100f, 0, "#56d1c0"));
 
-        /* ******Weekly temperature******* */
-        mWeekTempSet0 = new LineSet(weekLabels, weekDefault);
-        mWeekTempSet1 = new LineSet(weekLabels, weekDefault);
-
-        //Datasets config
-        mWeekTempChart.addData(mWeekTempSet0);
-        mWeekTempChart.addData(mWeekTempSet1);
-
-        mWeekTempSet0.setColor(Color.parseColor("#53c1bd"));
-        mWeekTempSet1.setColor(Color.parseColor("#5b5cbd"));
-
-        //Line chart config
-        mWeekTempChart
-                .setStep(5)
-                .show(new Animation());
-
-        /* ******Hourly temperature******* */
-        mHourTempSet0 = new LineSet(hourLabels, weekDefault);
-        mHourTempSet1 = new LineSet(hourLabels, weekDefault);
-
-        //Datasets config
-        mHourlyTempChart.addData(mHourTempSet0);
-        //mHourlyTempChart.addData(mHourTempSet1);
-
-        mHourTempSet0.setColor(Color.parseColor("#FFD700"));
-        mHourTempSet1.setColor(Color.parseColor("#5b5cbd"));
-
-        //Line chart config
-        mHourlyTempChart
-                .setStep(5)
-                .show(new Animation());
-
-        /* ******Compare temperature******* */
-        mCompareTempSet0 = new LineSet(hourLabels, weekDefault);
-        mCompareTempSet1 = new LineSet(hourLabels, weekDefault);
-
-        //Datasets config
-        mCompareTempChart.addData(mCompareTempSet0);
-        mCompareTempChart.addData(mCompareTempSet1);
-
-        mCompareTempSet0.setColor(Color.parseColor("#c15357"));
-        mCompareTempSet1.setColor(Color.parseColor("#53C186"));
-
-        //Line chart config
-        mCompareTempChart
-                .setStep(5)
-                .show(new Animation());
+        resetGraphs();
 
         //Temp chart entry listener
         //Weekly
@@ -363,9 +424,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @Override
     public void update(SensorData sensorData) {
         Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+        //Get the current data object
+        mSensorData = sensorData;
 
-        //Compare temp
-        getComparisonData(tempCompareDateX, tempCompareDateY);
+        /*//Compare temp
+        getComparisonData(tempCompareDateX, tempCompareDateY);*/
 
         //Current humidity
         int humidity = (int) sensorData.getHumidity();
@@ -396,17 +459,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mCurrentTempText.setText(String.format("%d\u00b0", currentTemp));
         //Set thermometer image accordingly
         mThermometerImage.setImageResource(getPercentageTermometer(currentTemp));
-
-        //Weekly temperature
-        //Arrays needed for both the linear and bar chart
-        mWeekTempMin = listToArray(sensorData.getWeeklyTemperatureMin());
-        mWeekTempMax = listToArray(sensorData.getWeeklyTemperatureMax());
-
-        //Hourly temperature
-        mHourlyTemp = listToArray(sensorData.getHourlyTemperature());
-        if (mHourlyTemp.length > 7) {
-            mHourlyTemp = shrinkArray(mHourlyTemp, 7);
-        }
+        
+        selectGraphDisplayValues();
 
         //Delay the first data load on graphs since they take some time to initialize properly
         if (firstLoad) {
@@ -459,15 +513,42 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private void updateCharts() {
         //Min temp
         mWeekTempChart.dismissAllTooltips();
-        mWeekTempChart.updateValues(0, mWeekTempMin);
+        mWeekTempChart.updateValues(0, mWeekValuesMin);
         //Max temp
-        mWeekTempChart.updateValues(1, mWeekTempMax);
+        mWeekTempChart.updateValues(1, mWeekValuesMax);
         mWeekTempChart.notifyDataUpdate();
 
         //Hourly
         mHourlyTempChart.dismissAllTooltips();
-        mHourlyTempChart.updateValues(0, mHourlyTemp);
+        mHourlyTempChart.updateValues(0, mHourlyValues);
         mHourlyTempChart.notifyDataUpdate();
+    }
+
+    private void selectGraphDisplayValues() {
+        //Select the appropriate values for the charts
+        switch (currentGraph) {
+            case TEMP_GRAPH:
+                mWeekValuesMax = listToArray(mSensorData.getWeeklyTemperatureMax());
+                mWeekValuesMin = listToArray(mSensorData.getWeeklyTemperatureMin());
+                mHourlyValues = listToArray(mSensorData.getHourlyTemperature());
+                break;
+            case HUM_GRAPH:
+                mWeekValuesMax = listToArray(mSensorData.getWeeklyHumidityMax());
+                mWeekValuesMin = listToArray(mSensorData.getWeeklyHumidityMin());
+                mHourlyValues = listToArray(mSensorData.getHourlyHumidity());
+                break;
+            case LUM_GRAPH:
+                mWeekValuesMax = listToArray(mSensorData.getWeeklyLuminosityMax());
+                mWeekValuesMin = listToArray(mSensorData.getWeeklyLuminosityMin());
+                mHourlyValues = listToArray(mSensorData.getHourlyLuminosity());
+                break;
+        }
+        if (mHourlyValues.length > 7) {
+            mHourlyValues = shrinkArray(mHourlyValues, 7);
+        }
+
+        //Compare temp
+        getComparisonData(tempCompareDateX, tempCompareDateY);
     }
 
     private void getComparisonData(final Date dateX, final Date dateY) {
@@ -477,12 +558,22 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             @Override
             public void run() {
                 try {
-                    SensorData dataX = mSensorApiHelper.requestPreviousDayData(dateX);
-                    SensorData dataY = mSensorApiHelper.requestPreviousDayData(dateY);
+                    SensorData dataX = mSensorApiHelper.requestPreviousDayData(dateX, currentGraph);
+                    SensorData dataY = mSensorApiHelper.requestPreviousDayData(dateY, currentGraph);
+
+                    List<Float> originalDataX = dataX.getHourlyTemperature();
+                    List<Float> originalDataY = dataY.getHourlyTemperature();
+                    if (currentGraph == HUM_GRAPH) {
+                        originalDataX = dataX.getHourlyHumidity();
+                        originalDataY = dataY.getHourlyHumidity();
+                    } else if (currentGraph == LUM_GRAPH) {
+                        originalDataX = dataX.getHourlyLuminosity();
+                        originalDataY = dataY.getHourlyLuminosity();
+                    }
 
                     //Reverse order of full length lists
-                    List<Float> fullLengthTempX = new ArrayList<>(dataX.getHourlyTemperature());
-                    List<Float> fullLengthTempY = new ArrayList<>(dataY.getHourlyTemperature());
+                    List<Float> fullLengthTempX = new ArrayList<>(originalDataX);
+                    List<Float> fullLengthTempY = new ArrayList<>(originalDataY);
                     Collections.reverse(fullLengthTempX);
                     Collections.reverse(fullLengthTempY);
                     final float[] originalTempX = listToArray(fullLengthTempX);
@@ -491,15 +582,15 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                     final float[] dataTempX;
                     final float[] dataTempY;
                     //Check if arrays are bigger than 7
-                    if (dataX.getHourlyTemperature().size() > 7)
-                        dataTempX = shrinkArray(listToArray(dataX.getHourlyTemperature()), 7);
+                    if (originalDataX.size() > 7)
+                        dataTempX = shrinkArray(listToArray(originalDataX), 7);
                     else
-                        dataTempX = listToArray(dataX.getHourlyTemperature());
+                        dataTempX = listToArray(originalDataX);
 
-                    if (dataY.getHourlyTemperature().size() > 7)
-                        dataTempY = shrinkArray(listToArray(dataY.getHourlyTemperature()), 7);
+                    if (originalDataY.size() > 7)
+                        dataTempY = shrinkArray(listToArray(originalDataY), 7);
                     else
-                        dataTempY = listToArray(dataY.getHourlyTemperature());
+                        dataTempY = listToArray(originalDataY);
 
                     runOnUiThread(new Runnable() {
                         @Override
