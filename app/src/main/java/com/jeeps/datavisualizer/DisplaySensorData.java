@@ -82,6 +82,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.current_temp_text) TextView mCurrentTempText;
     @BindView(R.id.last_7_days_text) TextView mTempChartDescriptionText;
     @BindView(R.id.luminosity_value_text) TextView mLuminosityText;
+    @BindView(R.id.more_info_temp_card_title) TextView mMoreInfoTitleText;
 
     @BindView(R.id.week_temp_linechart) LineChartView mWeekTempChart;
     @BindView(R.id.hourly_temp_linechart) LineChartView mHourlyTempChart;
@@ -218,10 +219,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
                 //Update charts with corresponding values
                 currentGraph = TEMP_GRAPH;
-                if (pos == 1)
+                mMoreInfoTitleText.setText("Detalle de temperatura");
+                if (pos == 1) {
                     currentGraph = HUM_GRAPH;
-                else if (pos == 2)
+                    mMoreInfoTitleText.setText("Detalle de humedad");
+                } else if (pos == 2) {
                     currentGraph = LUM_GRAPH;
+                    mMoreInfoTitleText.setText("Detalle de luminosidad");
+                }
 
                 if (!firstLoad) {
                     resetGraphs();
