@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.2'
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.jeeps.datavisualizer"
         minSdkVersion 20
@@ -43,8 +43,10 @@ dependencies {
     compile 'com.github.bmarrdev:android-DecoView-charting:v1.2'
     compile "com.androidplot:androidplot-core:1.5.1"
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'org.json:json:20180130'
     compile 'com.jakewharton:butterknife:8.8.1'
     compile 'com.diogobernardino:williamchart:2.5.0'
+    compile 'com.wdullaer:materialdatetimepicker:3.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     // https://mvnrepository.com/artifact/eu.bitwalker/UserAgentUtils
     compile group: 'eu.bitwalker', name: 'UserAgentUtils', version: '1.17'
