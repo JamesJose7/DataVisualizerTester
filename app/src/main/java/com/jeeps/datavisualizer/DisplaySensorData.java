@@ -73,6 +73,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     public static final int LUM_GRAPH = 13;
     private static final int TEMP_DATE_X = 0;
     private static final int TEMP_DATE_Y = 1;
+    private static final int CURRENT_DATE_EDIT = 2;
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.compare_temp_controls_container) RelativeLayout mTempCompareControlsLayout;
@@ -80,6 +81,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @BindView(R.id.humidity_decoview) DecoView mHumidityDecoView;
     @BindView(R.id.luminosity_decoview) DecoView mLuminosityDecoView;
 
+    @BindView(R.id.current_day_text) TextView mCurrentDayText;
     @BindView(R.id.humidity_text) TextView mHumidityText;
     @BindView(R.id.current_temp_text) TextView mCurrentTempText;
     @BindView(R.id.last_7_days_text) TextView mTempChartDescriptionText;
@@ -137,8 +139,11 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private float[] mWeekValuesMin;
     private float[] mHourlyValues;
 
-    private SimpleDateFormat dayFormatter = new SimpleDateFormat("E", new Locale("es", "EC"));
+    private SimpleDateFormat dayFormatter = new SimpleDateFormat("E d", new Locale("es", "EC"));
     private SimpleDateFormat hourFormatter = new SimpleDateFormat("h aa", Locale.US);
+    private SimpleDateFormat currentDayFirstFormatter = new SimpleDateFormat("EEEE d", new Locale("es", "EC"));
+    private SimpleDateFormat currentDaySecondFormatter = new SimpleDateFormat("MMMM, YYYY", new Locale("es", "EC"));
+    private SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm aa", new Locale("es", "EC"));
 
     private SensorApiHelper mSensorApiHelper;
     private boolean firstLoad = true;
@@ -148,6 +153,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private int choosingDate;
     private Date tempCompareDateX;
     private Date tempCompareDateY;
+    private Date currentDateDisplayed;
 
     private LineSet mWeekTempSet0;
     private LineSet mWeekTempSet1;
@@ -169,6 +175,10 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Change action bar title
         getSupportActionBar().setTitle("Sensores UTPL");
 
+        //Display current day text
+        currentDateDisplayed = new Date();
+        mCurrentDayText.setText(getCurrentDayFormat(currentDateDisplayed));
+
         //Create chart labels
         weekLabels = getWeekLabels();
         hourLabels = getHourLabels();
@@ -183,13 +193,13 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
         //Initialize connection with api
         mSensorApiHelper = new SensorApiHelper(this, this);
-        mSensorApiHelper.openConnection();
+        mSensorApiHelper.openConnection(currentDateDisplayed);
 
         //Initiales swipe refresher listener
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mSensorApiHelper.openConnection();
+                mSensorApiHelper.openConnection(currentDateDisplayed);
             }
         });
 
@@ -200,6 +210,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                 mMoreInfoLayout.setVisibility(View.INVISIBLE);
             }
         });
+    }
+
+    private String getCurrentDayFormat(Date date) {
+        String firstHalf = currentDayFirstFormatter.format(date);
+        String secondHalf = currentDaySecondFormatter.format(date);
+        String time = currentTime.format(date);
+
+        //Cap first letter
+        firstHalf = firstHalf.substring(0, 1).toUpperCase() + firstHalf.substring(1);
+        secondHalf = secondHalf.substring(0, 1).toUpperCase() + secondHalf.substring(1);
+        //Remove dot from AM/PM
+        time = time.replaceAll("\\.", "");
+
+        return time + "\n" + firstHalf + " de " + secondHalf;
     }
 
     private void initializeGraphSpinner() {
@@ -762,9 +786,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             Date date = SensorDataParser.getPreviousDayDate(reverseCounter);
             String day = dayFormatter.format(date);
             //Format it
-            if (day.contains("."))
-                day = day.substring(0, day.length() - 1);
-            day = day.substring(0, 1).toUpperCase() + day.substring(1, day.length()).toLowerCase();
+            day = day.replaceAll("\\.", "");
+            day = day.substring(0, 1).toUpperCase() + day.substring(1).toLowerCase();
             labels[i] = day;
 
             reverseCounter--;
@@ -893,6 +916,17 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     private void changeTintBackground(View view, String color) {
         view.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_ATOP);
+    }
+
+    @OnClick(R.id.edit_current_day_button)
+    protected void editCurrentDay() {
+        //Choose date
+        choosingDate = CURRENT_DATE_EDIT;
+        createDatePicker();
+
+        /*//Change current date and open connection to API
+        currentDateDisplayed = new Date();
+        mSensorApiHelper.openConnection(currentDateDisplayed);*/
     }
 
     @OnClick(R.id.temp_chart_week_button)
@@ -1144,12 +1178,21 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        Date date = new GregorianCalendar(year, monthOfYear, dayOfMonth).getTime();
-        if (choosingDate == TEMP_DATE_X)
-            tempCompareDateX = date;
-        else if (choosingDate == TEMP_DATE_Y)
-            tempCompareDateY = date;
+        Date time = new Date();
+        Date date = new GregorianCalendar(year, monthOfYear, dayOfMonth, time.getHours(), time.getMinutes()).getTime();
+        if (choosingDate != CURRENT_DATE_EDIT) {
+            if (choosingDate == TEMP_DATE_X)
+                tempCompareDateX = date;
+            else if (choosingDate == TEMP_DATE_Y)
+                tempCompareDateY = date;
 
-        changeCompareButtonsText();
+            changeCompareButtonsText();
+        } else {
+            currentDateDisplayed = date;
+            //Change display date
+            mCurrentDayText.setText(getCurrentDayFormat(currentDateDisplayed));
+            //Update data
+            mSensorApiHelper.openConnection(currentDateDisplayed);
+        }
     }
 }

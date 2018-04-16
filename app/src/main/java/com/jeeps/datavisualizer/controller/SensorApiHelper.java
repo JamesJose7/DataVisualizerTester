@@ -76,40 +76,41 @@ public class SensorApiHelper {
                 .build();
     }
 
-    public void openConnection() {
+    public void openConnection(Date date) {
         try {
             mListener.started();
-            updateStatus();
+            updateStatus(date);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void updateStatus() throws Exception {
+    private void updateStatus(Date date) throws Exception {
         mSensorData = new SensorData();
         mSensorDataParser = new SensorDataParser(mSensorData);
-        requestApi();
+        requestApi(date);
     }
 
-    public void requestApi() throws Exception {
+    public void requestApi(Date date) throws Exception {
         String currentDate = mDateFormat.format(new Date());
+        String chosenDate = mDateFormat.format(date);
 
         //Current Humidity callback
-        String humidityUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.HUMIDITY_SENSOR, currentDate);
+        String humidityUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.HUMIDITY_SENSOR, chosenDate);
         Request humidityRequest = new Request.Builder()
                 .url(humidityUrl)
                 .build();
         makeCall(humidityRequest, HUMIDITY);
 
         //Current Temperature callback
-        String temperatureUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, currentDate);
+        String temperatureUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.TEMPERATURE_SENSOR, chosenDate);
         Request temperatureRequest = new Request.Builder()
                 .url(temperatureUrl)
                 .build();
         makeCall(temperatureRequest, TEMPERATURE);
 
         //Current Luminosity callback
-        String luminosityUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.LUMINOSITY_SENSOR, currentDate);
+        String luminosityUrl = ApiBuilder.buildSensorUrl("node_01", ApiBuilder.LUMINOSITY_SENSOR, chosenDate);
         Request luminosityRequest = new Request.Builder()
                 .url(luminosityUrl)
                 .build();

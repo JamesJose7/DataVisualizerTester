@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,9 +20,12 @@ import static com.jeeps.datavisualizer.controller.SensorApiHelper.*;
 
 public class SensorDataParser {
     private SensorData mSensorData;
+    private SimpleDateFormat currentTimeFormatter = new SimpleDateFormat("HH");
+    private String currentTime;
 
     public SensorDataParser(SensorData sensorData) {
         mSensorData = sensorData;
+        currentTime = currentTimeFormatter.format(new Date());
     }
 
     public void parseHumidity(String jsonData) throws JSONException {
@@ -30,6 +34,15 @@ public class SensorDataParser {
         JSONArray data = mainObject.getJSONArray("data");
         //Get humidity from first item
         String humidityValue = data.getJSONObject(data.length() - 1).getString("valor");
+        //Get register time
+        for (int i = data.length() - 1; i >= 0; i--) {
+            String register = data.getJSONObject(i).getString("register");
+            if (register.contains(" " + currentTime + ":")) {
+                humidityValue = data.getJSONObject(i).getString("valor");
+                break;
+            }
+        }
+
         double humidity = Double.parseDouble(humidityValue);
 
         //Set value to object
@@ -42,6 +55,15 @@ public class SensorDataParser {
         JSONArray data = mainObject.getJSONArray("data");
         //Get temperature from first item
         String temperatureValue = data.getJSONObject(data.length() - 1).getString("valor");
+        //Get register time
+        for (int i = data.length() - 1; i >= 0; i--) {
+            String register = data.getJSONObject(i).getString("register");
+            if (register.contains(" " + currentTime + ":")) {
+                temperatureValue = data.getJSONObject(i).getString("valor");
+                break;
+            }
+        }
+
         double temperature = Double.parseDouble(temperatureValue);
 
         //Set value to object
@@ -54,6 +76,15 @@ public class SensorDataParser {
         JSONArray data = mainObject.getJSONArray("data");
         //Get temperature from first item
         String luminosityValue = data.getJSONObject(data.length() - 1).getString("valor");
+        //Get register time
+        for (int i = data.length() - 1; i >= 0; i--) {
+            String register = data.getJSONObject(i).getString("register");
+            if (register.contains(" " + currentTime + ":")) {
+                luminosityValue = data.getJSONObject(i).getString("valor");
+                break;
+            }
+        }
+
         double luminosity = Double.parseDouble(luminosityValue);
 
         //Set value to object
