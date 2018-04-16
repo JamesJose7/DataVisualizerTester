@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,6 +76,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.compare_temp_controls_container) RelativeLayout mTempCompareControlsLayout;
+    @BindView(R.id.main_scroll_view)ScrollView mScrollView;
     @BindView(R.id.humidity_decoview) DecoView mHumidityDecoView;
     @BindView(R.id.luminosity_decoview) DecoView mLuminosityDecoView;
 
@@ -969,6 +971,14 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mMoreInfoCompareTempRecyclerView.setVisibility(View.VISIBLE);
         mMoreInfoHourlyTempRecyclerView.setVisibility(View.INVISIBLE);
         mMoreInfoTempRecyclerView.setVisibility(View.INVISIBLE);
+
+        //Scroll View down
+        mScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollView.fullScroll(mScrollView.FOCUS_DOWN);
+            }
+        });
     }
 
     @OnClick(R.id.temp_choose_x_day)
@@ -1073,10 +1083,12 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mExpandFromMiddleCardAnimation.start();
     }
 
+    private String shareMessage = "La %s actual en la UTPL es de: %.2f%s. Via #SmartLandUTPL.";
+
     @OnClick(R.id.share_humidity)
     protected void shareHumidity() {
         if (mSensorData != null) {
-            String msg = String.format("La %s actual en la UTPL es de: %.2f%s. Via SmartLandUTPL.",
+            String msg = String.format(shareMessage,
                     "humedad", mSensorData.getHumidity(), "%");
             shareData(msg, "Humedad");
         }
@@ -1085,7 +1097,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @OnClick(R.id.share_temperature)
     protected void shareTemperature() {
         if (mSensorData != null) {
-            String msg = String.format("La %s actual en la UTPL es de: %.2f%s. Via SmartLandUTPL.",
+            String msg = String.format(shareMessage,
                     "temperatura", mSensorData.getTemperature(), "\u00b0");
             shareData(msg, "Temperatura");
         }
@@ -1094,7 +1106,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @OnClick(R.id.share_luminosity)
     protected void shareLuminosity() {
         if (mSensorData != null) {
-            String msg = String.format("La %s actual en la UTPL es de: %.2f%s. Via SmartLandUTPL.",
+            String msg = String.format(shareMessage,
                     "luminosidad", mSensorData.getLuminosity(), " Ohms");
             shareData(msg, "Luminosidad");
         }
