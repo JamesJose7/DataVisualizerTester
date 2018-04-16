@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.jeeps.datavisualizer.DisplaySensorData"
-    tools:showIn="@layout/activity_display_sensor_data">
+    tools:showIn="@layout/activity_display_sensor_data"
+    android:background="@color/colorPrimaryLight">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
@@ -48,6 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
+                    android:textColor="@color/colorPrimaryText"
                     android:fontFamily="@font/varela_round"
                     android:text="Humedad"/>
 
@@ -63,6 +65,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/varela_round"
                         android:text="0%"
+                        android:textColor="@color/colorSecondaryText"
                         android:textSize="25sp"
                         tools:text="100%"/>
 
@@ -112,6 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
+                    android:textColor="@color/colorPrimaryText"
                     android:fontFamily="@font/varela_round"
                     android:text="Temperatura"/>
 
@@ -140,6 +144,7 @@
                             android:layout_height="80dp"
                             android:gravity="center_vertical"
                             android:textSize="25sp"
+                            android:textColor="@color/colorSecondaryText"
                             android:text="0&#176;"/>
 
                     </LinearLayout>
@@ -179,6 +184,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryText"
                         android:fontFamily="@font/varela_round"
                         android:text="Luminosidad"/>
 
@@ -211,6 +217,7 @@
                                 android:fontFamily="@font/varela_round"
                                 android:gravity="center"
                                 android:text="0"
+                                android:textColor="@color/colorSecondaryText"
                                 android:textSize="25sp"
                                 tools:text="100"/>
 
@@ -220,7 +227,8 @@
                                 android:paddingTop="6dp"
                                 android:layout_marginStart="3dp"
                                 android:gravity="center"
-                                android:text="Ohms"/>
+                                android:text="Ohms"
+                                android:textColor="@color/colorSecondaryText"/>
 
                         </LinearLayout>
 
@@ -244,7 +252,7 @@
                 android:layout_below="@id/luminosity_card_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="120dp"
+                android:layout_marginBottom="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 app:cardElevation="4dp">
@@ -260,6 +268,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryText"
                         android:fontFamily="@font/varela_round"
                         android:text="Gráficos"/>
 
@@ -281,7 +290,8 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginLeft="10dp"
                         android:layout_below="@id/graph_spinner_chooser"
-                        android:text="Últimos 7 días"/>
+                        android:text="Últimos 7 días"
+                        android:textColor="@color/colorSecondaryText"/>
 
                     <ImageButton
                         android:id="@+id/fill_graph_button"
@@ -393,7 +403,8 @@
                                 android:layout_height="25dp"
                                 android:gravity="center_vertical"
                                 android:layout_marginLeft="8dp"
-                                android:text="-"/>
+                                android:text="-"
+                                android:textColor="@color/colorSecondaryText"/>
 
                         </LinearLayout>
 
@@ -417,7 +428,8 @@
                                 android:layout_height="25dp"
                                 android:gravity="center_vertical"
                                 android:layout_marginLeft="8dp"
-                                android:text="-"/>
+                                android:text="-"
+                                android:textColor="@color/colorSecondaryText"/>
 
                         </LinearLayout>
 
@@ -452,6 +464,7 @@
                             android:layout_height="30dp"
                             android:layout_weight="30"
                             android:text="Semana"
+                            android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:background="@drawable/left_button"/>
 
@@ -461,6 +474,7 @@
                             android:layout_height="30dp"
                             android:layout_weight="30"
                             android:text="Horas"
+                            android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:background="@drawable/center_button"/>
 
@@ -470,6 +484,7 @@
                             android:layout_height="30dp"
                             android:layout_weight="30"
                             android:text="Comparar"
+                            android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:background="@drawable/right_button"/>
 
@@ -531,6 +546,7 @@
                                 android:layout_height="30dp"
                                 android:layout_weight="30"
                                 android:text="-"
+                                android:textColor="@color/colorPrimaryText"
                                 android:textAllCaps="false"
                                 android:background="@drawable/round_borders_button"/>
 
@@ -548,6 +564,7 @@
                                 android:layout_height="30dp"
                                 android:layout_weight="30"
                                 android:text="-"
+                                android:textColor="@color/colorPrimaryText"
                                 android:textAllCaps="false"
                                 android:background="@drawable/round_borders_button"/>
 
@@ -562,6 +579,7 @@
                             android:layout_marginTop="25dp"
                             android:layout_weight="30"
                             android:text="Comparar"
+                            android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:layout_centerHorizontal="true"
                             android:background="@drawable/round_borders_button"/>
@@ -614,7 +632,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Detalle de temperatura"
-                    android:textColor="#000"
+                    android:textColor="@color/colorPrimaryText"
                     android:layout_marginBottom="4dp"
                     android:paddingStart="10dp"
                     android:paddingTop="15dp"/>
@@ -624,6 +642,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Últimos 7 días"
+                    android:textColor="@color/colorSecondaryText"
                     android:layout_marginBottom="15dp"
                     android:paddingStart="10dp"
                     android:layout_below="@id/more_info_temp_card_title"/>
