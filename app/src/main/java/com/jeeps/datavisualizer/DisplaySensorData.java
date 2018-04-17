@@ -148,6 +148,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private SensorApiHelper mSensorApiHelper;
     private boolean firstLoad = true;
     private boolean fillTempChartLines = false;
+    private boolean isFillGraphsButtonPressed = false;
     private int currentTempGraph = TEMP_WEEK_GRAPH;
     private int currentGraph = TEMP_GRAPH;
     private int choosingDate;
@@ -199,6 +200,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                //Display current day text
+                currentDateDisplayed = new Date();
+                mCurrentDayText.setText(getCurrentDayFormat(currentDateDisplayed));
                 mSensorApiHelper.openConnection(currentDateDisplayed);
             }
         });
@@ -1034,41 +1038,57 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.fill_graph_button)
     protected void fillTempChartLines() {
-        if (!fillTempChartLines) {
-            mWeekTempSet0.setFill(Color.parseColor("#5553c1bd"));
-            mWeekTempSet1.setFill(Color.parseColor("#555b5cbd"));
-            mHourTempSet0.setFill(Color.parseColor("#55FFD700"));
-            mHourTempSet1.setFill(Color.parseColor("#5553c1bd"));
-            mCompareTempSet0.setFill(Color.parseColor("#55c15357"));
-            mCompareTempSet1.setFill(Color.parseColor("#5553C186"));
+        if (!isFillGraphsButtonPressed) {
+            isFillGraphsButtonPressed = true;
+            if (!fillTempChartLines) {
+                mWeekTempSet0.setFill(Color.parseColor("#5553c1bd"));
+                mWeekTempSet1.setFill(Color.parseColor("#555b5cbd"));
+                mHourTempSet0.setFill(Color.parseColor("#55FFD700"));
+                mCompareTempSet0.setFill(Color.parseColor("#55c15357"));
+                mCompareTempSet1.setFill(Color.parseColor("#5553C186"));
 
-            //Update graphs
-            mWeekTempChart.show();
-            mHourlyTempChart.show();
-            mCompareTempChart.show();
+                //Update graphs
+                mWeekTempChart.show();
+                mHourlyTempChart.show();
+                mCompareTempChart.show();
 
-            //Change button
-            mFillTempChartLinesButton.setImageResource(R.drawable.color_graph);
+                //Change button
+                mFillTempChartLinesButton.setImageResource(R.drawable.color_graph);
 
-            fillTempChartLines = true;
-        } else {
-            mWeekTempSet0.setFill(Color.parseColor("#0053c1bd"));
-            mWeekTempSet1.setFill(Color.parseColor("#005b5cbd"));
-            mHourTempSet0.setFill(Color.parseColor("#00FFD700"));
-            mHourTempSet1.setFill(Color.parseColor("#0053c1bd"));
-            mCompareTempSet0.setFill(Color.parseColor("#00c15357"));
-            mCompareTempSet1.setFill(Color.parseColor("#0053C186"));
-            mWeekTempChart.show();
+                fillTempChartLines = true;
+            } else {
+                mWeekTempSet0.setFill(Color.parseColor("#0053c1bd"));
+                mWeekTempSet1.setFill(Color.parseColor("#005b5cbd"));
+                mHourTempSet0.setFill(Color.parseColor("#00FFD700"));
+                mCompareTempSet0.setFill(Color.parseColor("#00c15357"));
+                mCompareTempSet1.setFill(Color.parseColor("#0053C186"));
+                mWeekTempChart.show();
 
-            //Update graphs
-            mWeekTempChart.show();
-            mHourlyTempChart.show();
-            mCompareTempChart.show();
+                //Update graphs
+                mWeekTempChart.show();
+                mHourlyTempChart.show();
+                mCompareTempChart.show();
 
-            //Change button
-            mFillTempChartLinesButton.setImageResource(R.drawable.dark_graph);
+                //Change button
+                mFillTempChartLinesButton.setImageResource(R.drawable.dark_graph);
 
-            fillTempChartLines = false;
+                fillTempChartLines = false;
+            }
+
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1100);
+                        isFillGraphsButtonPressed = false;
+                    } catch (InterruptedException e) {
+                        isFillGraphsButtonPressed = false;
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            thread.start();
         }
     }
 
