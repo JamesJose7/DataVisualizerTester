@@ -16,7 +16,11 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -35,6 +39,11 @@ import com.db.chart.animation.Animation;
 import com.db.chart.listener.OnEntryClickListener;
 import com.db.chart.model.LineSet;
 import com.db.chart.view.LineChartView;
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
@@ -62,7 +71,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class DisplaySensorData extends AppCompatActivity implements SensorApiHelper.SensorApiListener, DatePickerDialog.OnDateSetListener {
+public class DisplaySensorData extends AppCompatActivity implements SensorApiHelper.SensorApiListener,
+        DatePickerDialog.OnDateSetListener, OnShowcaseEventListener {
 
     public static final String TAG = "DISPLAY_SENSOR_DATA";
     public static final int TEMP_WEEK_GRAPH = 0;
@@ -165,6 +175,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private AnimatorSet mFadeInAndOut;
     private AnimatorSet mExpandFromMiddleCardAnimation;
     private SensorData mSensorData;
+    private ShowcaseView showcaseView;
+    private int showCaseCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1214,5 +1226,199 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             //Update data
             mSensorApiHelper.openConnection(currentDateDisplayed);
         }
+    }
+
+    private void showTutorial() {
+        showCaseCounter = 0;
+
+        //Scroll all the way up
+        mScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollView.fullScroll(mScrollView.FOCUS_UP);
+            }
+        });
+
+        final RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
+        lps.setMargins(margin, margin, margin, margin);
+
+        final ViewTarget target1 = new ViewTarget(R.id.edit_current_day_button, this);
+        final ViewTarget target2 = new ViewTarget(R.id.share_humidity, this);
+        final ViewTarget target3 = new ViewTarget(R.id.graph_spinner_chooser, this);
+        final ViewTarget target4 = new ViewTarget(R.id.display_more_info_graph_button, this);
+        final ViewTarget target5 = new ViewTarget(R.id.fill_graph_button, this);
+        final ViewTarget target6 = new ViewTarget(R.id.temp_choose_x_day, this);
+        final ViewTarget target7 = new ViewTarget(R.id.temp_choose_y_day, this);
+        final ViewTarget target8 = new ViewTarget(R.id.temp_compare_button, this);
+        final ViewTarget target9 = new ViewTarget(R.id.help_menu, this);
+
+        Thread tutorialThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Showcase View
+                        System.out.println();
+                        showcaseView = new ShowcaseView.Builder(DisplaySensorData.this)
+                                .withMaterialShowcase()
+                                .setTarget(target1)
+                                .setContentTitle("Seleccionar día")
+                                .setContentText("Cambia el día del cual se muestra la humedad, temperatura y luminosidad en la hora actual")
+                                .setStyle(R.style.CustomShowcaseTheme2)
+                                .setShowcaseEventListener(DisplaySensorData .this)
+                                .replaceEndButton(R.layout.view_custom_button)
+                                .setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        switch (showCaseCounter) {
+                                            case 0:
+                                                //Share button
+                                                showcaseView.setShowcase(target2, true);
+                                                showcaseView.setContentTitle("Compartir");
+                                                showcaseView.setContentText("Comparte nuestros datos en tu aplicación favorita");
+                                                break;
+                                            case 1:
+                                                //Graph explanation
+                                                showcaseView.setTarget(Target.NONE);
+                                                showcaseView.setContentTitle("Gráficos");
+                                                showcaseView.setContentText("Los gráficos muestran datos sobre los últimos 7 días y las últimas 7 horas");
+                                                mScrollView.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        mScrollView.fullScroll(mScrollView.FOCUS_DOWN);
+                                                    }
+                                                });
+                                                break;
+                                            case 2:
+                                                //Graph spinner
+                                                showcaseView.setTarget(target3);
+                                                showcaseView.setContentTitle("Escoge que se va a graficar");
+                                                showcaseView.setContentText("Según eligas, los gráficos mostraran información sobre la humedad, temperatura o luminosidad");
+                                                break;
+                                            case 3:
+                                                //Graph More info
+                                                showcaseView.setShowcase(target4, true);
+                                                showcaseView.setContentTitle("Más información");
+                                                showcaseView.setContentText("Los datos exactos de cada día u hora se muestran al presionar este botón");
+                                                break;
+                                            case 4:
+                                                //Graph More info
+                                                showcaseView.setShowcase(target5, true);
+                                                showcaseView.setContentTitle("¡Colores!");
+                                                showcaseView.setContentText("Escoge entre dos estilos de gráficos");
+                                                break;
+                                            case 5:
+                                                //Graph comparisson
+                                                showcaseView.setTarget(Target.NONE);
+                                                showcaseView.setContentTitle("Compara");
+                                                showcaseView.setContentText("Mira la diferencia de los datos entre dos días que escogas");
+                                                //Open compare
+                                                changeTempChartToCompare();
+                                                break;
+                                            case 6:
+                                                //Compare button day 1
+                                                showcaseView.setTarget(target6);
+                                                showcaseView.setContentTitle("Compara");
+                                                showcaseView.setContentText("Escoge el primer día que vas a comparar");
+                                                break;
+                                            case 7:
+                                                //Compare button day 2
+                                                showcaseView.setShowcase(target7, true);
+                                                showcaseView.setContentTitle("Compara");
+                                                showcaseView.setContentText("Escoge el segundo día que vas a comparar");
+                                                break;
+                                            case 8:
+                                                //Compare button day 2
+                                                showcaseView.setShowcase(target8, true);
+                                                showcaseView.setContentTitle("Resultados");
+                                                showcaseView.setContentText("Confirma los días que se van a comparar presionando aquí");
+                                                break;
+                                            case 9:
+                                                //Graph comparisson
+                                                showcaseView.setShowcase(target9, true);
+                                                showcaseView.setContentTitle("Eso es todo");
+                                                showcaseView.setContentText("Si necesitas ayuda de nuevo presiona aquí para mostrar el tutorial");
+                                                showcaseView.setButtonText("Terminar");
+                                                //Close compare
+                                                changeTempChartToWeek();
+                                                break;
+                                            case 10:
+                                                //Close showcase
+                                                showcaseView.hide();
+                                                showCaseCounter = 0;
+                                                break;
+                                            default:
+                                        }
+                                        showCaseCounter++;
+                                    }
+                                })
+                                .build();
+
+                        showcaseView.setButtonPosition(lps);
+                        showcaseView.show();
+                    }
+                });
+            }
+        });
+
+        //Start tutorial
+        tutorialThread.start();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_display_sensor_data, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+
+        switch (id) {
+            case R.id.help_menu:
+                //Show tutorial
+                showTutorial();
+                return true;
+            default:
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+
+    }
+
+    @Override
+    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+    }
+
+    @Override
+    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+    }
+
+    @Override
+    public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+
     }
 }

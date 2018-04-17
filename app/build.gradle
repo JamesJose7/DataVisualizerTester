@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.jakewharton:butterknife:8.8.1'
     implementation 'com.diogobernardino:williamchart:2.5.0'
     implementation 'com.wdullaer:materialdatetimepicker:3.5.1'
+    implementation 'com.github.amlcurran.showcaseview:library:5.4.3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     // https://mvnrepository.com/artifact/eu.bitwalker/UserAgentUtils
     implementation group: 'eu.bitwalker', name: 'UserAgentUtils', version: '1.17'
