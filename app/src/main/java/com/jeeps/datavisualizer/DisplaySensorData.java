@@ -177,6 +177,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private SensorData mSensorData;
     private ShowcaseView showcaseView;
     private int showCaseCounter;
+    private boolean showingTutorial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,6 +188,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         ButterKnife.bind(this);
         //Change action bar title
         getSupportActionBar().setTitle(R.string.action_bar_title);
+
+        showingTutorial = false;
 
         //Display current day text
         currentDateDisplayed = new Date();
@@ -1248,155 +1251,160 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     }
 
     private void showTutorial() {
-        showCaseCounter = 0;
-
-        //Scroll all the way up
-        mScrollView.post(new Runnable() {
-            @Override
-            public void run() {
-                mScrollView.fullScroll(mScrollView.FOCUS_UP);
-            }
-        });
-
-        final RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
-        lps.setMargins(margin, margin, margin, margin);
-
-        final ViewTarget target1 = new ViewTarget(R.id.edit_current_day_button, this);
-        final ViewTarget target2 = new ViewTarget(R.id.share_humidity, this);
-        final ViewTarget target3 = new ViewTarget(R.id.graph_spinner_chooser, this);
-        final ViewTarget target4 = new ViewTarget(R.id.display_more_info_graph_button, this);
-        final ViewTarget target5 = new ViewTarget(R.id.fill_graph_button, this);
-        final ViewTarget target6 = new ViewTarget(R.id.temp_choose_x_day, this);
-        final ViewTarget target7 = new ViewTarget(R.id.temp_choose_y_day, this);
-        final ViewTarget target8 = new ViewTarget(R.id.temp_compare_button, this);
-        final ViewTarget target9 = new ViewTarget(R.id.help_menu, this);
-
-        Thread tutorialThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        if (!showingTutorial) {
+            showingTutorial = true;
+            showCaseCounter = 0;
+            //Scroll all the way up
+            mScrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mScrollView.fullScroll(mScrollView.FOCUS_UP);
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Showcase View
-                        System.out.println();
-                        showcaseView = new ShowcaseView.Builder(DisplaySensorData.this)
-                                .withMaterialShowcase()
-                                .setTarget(Target.NONE)
-                                .setContentTitle(getString(R.string.tut_step1_title))
-                                .setContentText(getString(R.string.tut_step1_text))
-                                .setStyle(R.style.CustomShowcaseTheme2)
-                                .setShowcaseEventListener(DisplaySensorData .this)
-                                .replaceEndButton(R.layout.view_custom_button)
-                                .setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        switch (showCaseCounter) {
-                                            case 0:
-                                                //Edit day button
-                                                showcaseView.setTarget(target1);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step2_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step2_text));
-                                                break;
-                                            case 1:
-                                                //Share button
-                                                showcaseView.setShowcase(target2, true);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step3_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step3_text));
-                                                break;
-                                            case 2:
-                                                //Graph explanation
-                                                showcaseView.setTarget(Target.NONE);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step4_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step4_text));
-                                                mScrollView.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        mScrollView.fullScroll(mScrollView.FOCUS_DOWN);
-                                                    }
-                                                });
-                                                break;
-                                            case 3:
-                                                //Graph spinner
-                                                showcaseView.setTarget(target3);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step5_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step5_text));
-                                                break;
-                                            case 4:
-                                                //Graph More info
-                                                showcaseView.setShowcase(target4, true);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step6_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step6_text));
-                                                break;
-                                            case 5:
-                                                //Graph More info
-                                                showcaseView.setShowcase(target5, true);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step7_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step7_text));
-                                                break;
-                                            case 6:
-                                                //Graph comparisson
-                                                showcaseView.setTarget(Target.NONE);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step8_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step8_text));
-                                                //Open compare
-                                                changeTempChartToCompare();
-                                                break;
-                                            case 7:
-                                                //Compare button day 1
-                                                showcaseView.setTarget(target6);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step9_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step9_text));
-                                                break;
-                                            case 8:
-                                                //Compare button day 2
-                                                showcaseView.setShowcase(target7, true);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step10_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step10_text));
-                                                break;
-                                            case 9:
-                                                //Compare button day 2
-                                                showcaseView.setShowcase(target8, true);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step11_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step11_text));
-                                                break;
-                                            case 10:
-                                                //End
-                                                showcaseView.setShowcase(target9, true);
-                                                showcaseView.setContentTitle(getString(R.string.tut_step12_title));
-                                                showcaseView.setContentText(getString(R.string.tut_step12_text));
-                                                showcaseView.setButtonText(getString(R.string.tut_end_button));
-                                                //Close compare
-                                                changeTempChartToWeek();
-                                                break;
-                                            case 11:
-                                                //Close showcase
-                                                showcaseView.hide();
-                                                showCaseCounter = 0;
-                                                break;
-                                            default:
-                                        }
-                                        showCaseCounter++;
-                                    }
-                                })
-                                .build();
+            });
 
-                        showcaseView.setButtonPosition(lps);
-                        showcaseView.show();
+            final RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
+            lps.setMargins(margin, margin, margin, margin);
+
+            final ViewTarget target1 = new ViewTarget(R.id.edit_current_day_button, this);
+            final ViewTarget target2 = new ViewTarget(R.id.share_humidity, this);
+            final ViewTarget target3 = new ViewTarget(R.id.position_for_spinner_tutorial, this);
+            final ViewTarget target4 = new ViewTarget(R.id.display_more_info_graph_button, this);
+            final ViewTarget target5 = new ViewTarget(R.id.fill_graph_button, this);
+            final ViewTarget target6 = new ViewTarget(R.id.temp_choose_x_day, this);
+            final ViewTarget target7 = new ViewTarget(R.id.temp_choose_y_day, this);
+            final ViewTarget target8 = new ViewTarget(R.id.temp_compare_button, this);
+            final ViewTarget target9 = new ViewTarget(R.id.help_menu, this);
+
+            Thread tutorialThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                });
-            }
-        });
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Showcase View
+                            System.out.println();
+                            showcaseView = new ShowcaseView.Builder(DisplaySensorData.this)
+                                    .withMaterialShowcase()
+                                    .setTarget(Target.NONE)
+                                    .setContentTitle(getString(R.string.tut_step1_title))
+                                    .setContentText(getString(R.string.tut_step1_text))
+                                    .setStyle(R.style.CustomShowcaseTheme2)
+                                    .setShowcaseEventListener(DisplaySensorData.this)
+                                    .replaceEndButton(R.layout.view_custom_button)
+                                    .setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            switch (showCaseCounter) {
+                                                case 0:
+                                                    //Edit day button
+                                                    showcaseView.setTarget(target1);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step2_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step2_text));
+                                                    break;
+                                                case 1:
+                                                    //Share button
+                                                    showcaseView.setShowcase(target2, true);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step3_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step3_text));
+                                                    break;
+                                                case 2:
+                                                    //Graph explanation
+                                                    showcaseView.setTarget(Target.NONE);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step4_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step4_text));
+                                                    mScrollView.post(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            mScrollView.fullScroll(mScrollView.FOCUS_DOWN);
+                                                        }
+                                                    });
+                                                    break;
+                                                case 3:
+                                                    //Graph spinner
+                                                    showcaseView.setTarget(target3);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step5_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step5_text));
+                                                    break;
+                                                case 4:
+                                                    //Graph More info
+                                                    showcaseView.setShowcase(target4, true);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step6_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step6_text));
+                                                    break;
+                                                case 5:
+                                                    //Hide more info layout in case it was opened
+                                                    mMoreInfoLayout.setVisibility(View.INVISIBLE);
+                                                    //Graph Fill Colors
+                                                    showcaseView.setShowcase(target5, true);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step7_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step7_text));
+                                                    break;
+                                                case 6:
+                                                    //Graph comparisson
+                                                    showcaseView.setTarget(Target.NONE);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step8_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step8_text));
+                                                    //Open compare
+                                                    changeTempChartToCompare();
+                                                    break;
+                                                case 7:
+                                                    //Compare button day 1
+                                                    showcaseView.setTarget(target6);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step9_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step9_text));
+                                                    break;
+                                                case 8:
+                                                    //Compare button day 2
+                                                    showcaseView.setShowcase(target7, true);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step10_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step10_text));
+                                                    break;
+                                                case 9:
+                                                    //Compare button day 2
+                                                    showcaseView.setShowcase(target8, true);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step11_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step11_text));
+                                                    break;
+                                                case 10:
+                                                    //End
+                                                    showcaseView.setShowcase(target9, true);
+                                                    showcaseView.setContentTitle(getString(R.string.tut_step12_title));
+                                                    showcaseView.setContentText(getString(R.string.tut_step12_text));
+                                                    showcaseView.setButtonText(getString(R.string.tut_end_button));
+                                                    //Close compare
+                                                    changeTempChartToWeek();
+                                                    break;
+                                                case 11:
+                                                    //Close showcase
+                                                    showcaseView.hide();
+                                                    showCaseCounter = 0;
+                                                    showingTutorial = false;
+                                                    break;
+                                                default:
+                                            }
+                                            showCaseCounter++;
+                                        }
+                                    })
+                                    .build();
 
-        //Start tutorial
-        tutorialThread.start();
+                            showcaseView.setButtonPosition(lps);
+                            showcaseView.show();
+                        }
+                    });
+                }
+            });
+
+            //Start tutorial
+            tutorialThread.start();
+        }
     }
 
     @Override

@@ -327,6 +327,15 @@
                         android:fontFamily="@font/varela_round"
                         android:text="@string/graphs"/>
 
+                    <TextView
+                        android:id="@+id/position_for_spinner_tutorial"
+                        android:layout_width="32dp"
+                        android:layout_height="25dp"
+                        android:layout_below="@id/graph_title_text"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginBottom="10dp"/>
+
                     <Spinner
                         android:id="@+id/graph_spinner_chooser"
                         android:layout_width="match_parent"
