@@ -55,7 +55,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:layout_marginLeft="10dp"
-                        android:text="Mostrando detalles de"
+                        android:text="@string/showing_details_of"
                         android:textSize="17sp"
                         android:textColor="@color/colorSecondaryText"/>
 
@@ -106,7 +106,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:textColor="@color/colorPrimaryText"
-                    android:text="Humedad"/>
+                    android:text="@string/humidity"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -172,7 +172,7 @@
                     android:textSize="20sp"
                     android:textColor="@color/colorPrimaryText"
                     android:fontFamily="@font/varela_round"
-                    android:text="Temperatura"/>
+                    android:text="@string/temperature"/>
 
                 <RelativeLayout
                     android:id="@+id/temperature_layout"
@@ -241,7 +241,7 @@
                         android:textSize="20sp"
                         android:textColor="@color/colorPrimaryText"
                         android:fontFamily="@font/varela_round"
-                        android:text="Luminosidad"/>
+                        android:text="@string/luminosity"/>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -325,7 +325,7 @@
                         android:textSize="20sp"
                         android:textColor="@color/colorPrimaryText"
                         android:fontFamily="@font/varela_round"
-                        android:text="Gráficos"/>
+                        android:text="@string/graphs"/>
 
                     <Spinner
                         android:id="@+id/graph_spinner_chooser"
@@ -345,7 +345,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginLeft="10dp"
                         android:layout_below="@id/graph_spinner_chooser"
-                        android:text="Últimos 7 días"
+                        android:text="@string/last_7_days"
                         android:textColor="@color/colorSecondaryText"/>
 
                     <ImageButton
@@ -518,7 +518,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="30dp"
                             android:layout_weight="30"
-                            android:text="Semana"
+                            android:text="@string/week"
                             android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:background="@drawable/left_button"/>
@@ -528,7 +528,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="30dp"
                             android:layout_weight="30"
-                            android:text="Horas"
+                            android:text="@string/hours"
                             android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:background="@drawable/center_button"/>
@@ -538,7 +538,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="30dp"
                             android:layout_weight="30"
-                            android:text="Comparar"
+                            android:text="@string/compare"
                             android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:background="@drawable/right_button"/>
@@ -569,7 +569,7 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Día 1"
+                                android:text="@string/day_1"
                                 android:gravity="center"
                                 android:layout_weight="30"/>
 
@@ -581,7 +581,7 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Día 2"
+                                android:text="@string/day_2"
                                 android:gravity="center"
                                 android:layout_weight="30"/>
 
@@ -633,7 +633,7 @@
                             android:layout_below="@id/temp_date_choosers_container"
                             android:layout_marginTop="25dp"
                             android:layout_weight="30"
-                            android:text="Comparar"
+                            android:text="@string/compare"
                             android:textColor="@color/colorPrimaryText"
                             android:textAllCaps="false"
                             android:layout_centerHorizontal="true"
@@ -686,7 +686,7 @@
                     android:id="@+id/more_info_temp_card_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Detalle de temperatura"
+                    android:text="@string/temperature_details"
                     android:textColor="@color/colorPrimaryText"
                     android:layout_marginBottom="4dp"
                     android:paddingStart="10dp"
@@ -696,7 +696,7 @@
                     android:id="@+id/more_info_temp_card_subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Últimos 7 días"
+                    android:text="@string/last_7_days"
                     android:textColor="@color/colorSecondaryText"
                     android:layout_marginBottom="15dp"
                     android:paddingStart="10dp"

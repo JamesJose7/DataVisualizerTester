@@ -6,7 +6,7 @@
     <item
         android:id="@+id/help_menu"
         android:orderInCategory="100"
-        android:title="Ayuda"
+        android:title="@string/menu_help"
         android:icon="@drawable/ic_help"
         android:iconTint="#fff"
         app:showAsAction="always"/>

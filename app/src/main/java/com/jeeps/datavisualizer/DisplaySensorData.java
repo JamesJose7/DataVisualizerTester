@@ -186,7 +186,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
         //Change action bar title
-        getSupportActionBar().setTitle("Sensores UTPL");
+        getSupportActionBar().setTitle(R.string.action_bar_title);
 
         //Display current day text
         currentDateDisplayed = new Date();
@@ -245,9 +245,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     private void initializeGraphSpinner() {
         //Spinner items
         List<String> spinnerItems = new ArrayList<>();
-        spinnerItems.add("Temperatura");
-        spinnerItems.add("Humedad");
-        spinnerItems.add("Luminosidad");
+        spinnerItems.add(getString(R.string.temperature));
+        spinnerItems.add(getString(R.string.humidity));
+        spinnerItems.add(getString(R.string.luminosity));
 
         //Spinner adapter
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
@@ -261,13 +261,13 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
                 //Update charts with corresponding values
                 currentGraph = TEMP_GRAPH;
-                mMoreInfoTitleText.setText("Detalle de temperatura");
+                mMoreInfoTitleText.setText(R.string.temperature_details);
                 if (pos == 1) {
                     currentGraph = HUM_GRAPH;
-                    mMoreInfoTitleText.setText("Detalle de humedad");
+                    mMoreInfoTitleText.setText(R.string.humidity_details);
                 } else if (pos == 2) {
                     currentGraph = LUM_GRAPH;
-                    mMoreInfoTitleText.setText("Detalle de luminosidad");
+                    mMoreInfoTitleText.setText(R.string.luminosity_details);
                 }
 
                 if (!firstLoad) {
@@ -908,23 +908,23 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                 changeTintBackground(mTempLegendBView, "#5b5cbd");
 
                 //Text
-                mTempLegendA.setText("Mínima");
-                mTempLegendB.setText("Máxima");
+                mTempLegendA.setText(R.string.legend_minimum);
+                mTempLegendB.setText(R.string.legend_maximum);
                 break;
             case TEMP_HOURS_GRAPH:
                 changeTintBackground(mTempLegendAView, "#FFD700");
                 mTempLegendBContainer.setVisibility(View.INVISIBLE);
 
                 //Text
-                mTempLegendA.setText("Promedio");
+                mTempLegendA.setText(R.string.legend_average);
                 break;
             case TEMP_COMPARE_GRAPH:
                 changeTintBackground(mTempLegendAView, "#c15357");
                 changeTintBackground(mTempLegendBView, "#53C186");
 
                 //Text
-                mTempLegendA.setText("Día 1");
-                mTempLegendB.setText("Día 2");
+                mTempLegendA.setText(R.string.legend_day1);
+                mTempLegendB.setText(R.string.legend_day2);
                 break;
             default:
         }
@@ -950,7 +950,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Hide compare controlls
         mTempCompareControlsLayout.setVisibility(View.GONE);
 
-        mTempChartDescriptionText.setText("Últimos 7 días");
+        mTempChartDescriptionText.setText(R.string.last_7_days);
         if (currentTempGraph != TEMP_WEEK_GRAPH) {
             if (currentTempGraph == TEMP_HOURS_GRAPH)
                 fadeInOutViews(mHourlyTempChart, mWeekTempChart);
@@ -965,7 +965,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         currentTempGraph = TEMP_WEEK_GRAPH;
 
         //Show appropriate data for more info card
-        mMoreInfoCardTitle.setText("Últimos 7 días");
+        mMoreInfoCardTitle.setText(R.string.last_7_days);
         mMoreInfoTempRecyclerView.setVisibility(View.VISIBLE);
         mMoreInfoHourlyTempRecyclerView.setVisibility(View.INVISIBLE);
         mMoreInfoCompareTempRecyclerView.setVisibility(View.INVISIBLE);
@@ -976,7 +976,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         //Hide compare controlls
         mTempCompareControlsLayout.setVisibility(View.GONE);
 
-        mTempChartDescriptionText.setText("Últimas 7 horas");
+        mTempChartDescriptionText.setText(R.string.last_7_hours);
         if (currentTempGraph != TEMP_HOURS_GRAPH) {
             if (currentTempGraph == TEMP_WEEK_GRAPH)
                 fadeInOutViews(mWeekTempChart, mHourlyTempChart);
@@ -991,7 +991,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         currentTempGraph = TEMP_HOURS_GRAPH;
 
         //Show appropriate data for more info card
-        mMoreInfoCardTitle.setText("Resumen de hoy por horas");
+        mMoreInfoCardTitle.setText(R.string.todays_briefing_hours);
         mMoreInfoHourlyTempRecyclerView.setVisibility(View.VISIBLE);
         mMoreInfoTempRecyclerView.setVisibility(View.INVISIBLE);
         mMoreInfoCompareTempRecyclerView.setVisibility(View.INVISIBLE);
@@ -999,7 +999,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
 
     @OnClick(R.id.temp_chart_compare_button)
     protected void changeTempChartToCompare() {
-        mTempChartDescriptionText.setText("Comparar días");
+        mTempChartDescriptionText.setText(R.string.compare_days);
 
         if (currentTempGraph != TEMP_COMPARE_GRAPH) {
             //Show controlls
@@ -1017,7 +1017,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         currentTempGraph = TEMP_COMPARE_GRAPH;
 
         //Show appropriate data for more info card
-        mMoreInfoCardTitle.setText("Comparar días");
+        mMoreInfoCardTitle.setText(R.string.compare_days);
         mMoreInfoCompareTempRecyclerView.setVisibility(View.VISIBLE);
         mMoreInfoHourlyTempRecyclerView.setVisibility(View.INVISIBLE);
         mMoreInfoTempRecyclerView.setVisibility(View.INVISIBLE);
@@ -1183,7 +1183,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
         shareIntent.putExtra(Intent.EXTRA_TEXT, msg);
-        startActivity(Intent.createChooser(shareIntent, "Compartir en..."));
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_via)));
     }
 
     @Override
@@ -1271,8 +1271,8 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                         showcaseView = new ShowcaseView.Builder(DisplaySensorData.this)
                                 .withMaterialShowcase()
                                 .setTarget(Target.NONE)
-                                .setContentTitle("Actualizar")
-                                .setContentText("Desliza la pantalla hacia abajo para actualizar los datos en cualquier momento")
+                                .setContentTitle(getString(R.string.tut_step1_title))
+                                .setContentText(getString(R.string.tut_step1_text))
                                 .setStyle(R.style.CustomShowcaseTheme2)
                                 .setShowcaseEventListener(DisplaySensorData .this)
                                 .replaceEndButton(R.layout.view_custom_button)
@@ -1283,20 +1283,20 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                                             case 0:
                                                 //Edit day button
                                                 showcaseView.setTarget(target1);
-                                                showcaseView.setContentTitle("Seleccionar día");
-                                                showcaseView.setContentText("Cambia el día del cual se muestra la humedad, temperatura y luminosidad en la hora actual");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step2_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step2_text));
                                                 break;
                                             case 1:
                                                 //Share button
                                                 showcaseView.setShowcase(target2, true);
-                                                showcaseView.setContentTitle("Compartir");
-                                                showcaseView.setContentText("Comparte nuestros datos en tu aplicación favorita");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step3_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step3_text));
                                                 break;
                                             case 2:
                                                 //Graph explanation
                                                 showcaseView.setTarget(Target.NONE);
-                                                showcaseView.setContentTitle("Gráficos");
-                                                showcaseView.setContentText("Los gráficos muestran datos sobre los últimos 7 días y las últimas 7 horas");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step4_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step4_text));
                                                 mScrollView.post(new Runnable() {
                                                     @Override
                                                     public void run() {
@@ -1307,53 +1307,53 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                                             case 3:
                                                 //Graph spinner
                                                 showcaseView.setTarget(target3);
-                                                showcaseView.setContentTitle("Escoge que se va a graficar");
-                                                showcaseView.setContentText("Según eligas, los gráficos mostraran información sobre la humedad, temperatura o luminosidad");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step5_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step5_text));
                                                 break;
                                             case 4:
                                                 //Graph More info
                                                 showcaseView.setShowcase(target4, true);
-                                                showcaseView.setContentTitle("Más información");
-                                                showcaseView.setContentText("Los datos exactos de cada día u hora se muestran al presionar este botón");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step6_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step6_text));
                                                 break;
                                             case 5:
                                                 //Graph More info
                                                 showcaseView.setShowcase(target5, true);
-                                                showcaseView.setContentTitle("¡Colores!");
-                                                showcaseView.setContentText("Escoge entre dos estilos de gráficos");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step7_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step7_text));
                                                 break;
                                             case 6:
                                                 //Graph comparisson
                                                 showcaseView.setTarget(Target.NONE);
-                                                showcaseView.setContentTitle("Compara");
-                                                showcaseView.setContentText("Mira la diferencia de los datos entre dos días que escogas");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step8_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step8_text));
                                                 //Open compare
                                                 changeTempChartToCompare();
                                                 break;
                                             case 7:
                                                 //Compare button day 1
                                                 showcaseView.setTarget(target6);
-                                                showcaseView.setContentTitle("Compara");
-                                                showcaseView.setContentText("Escoge el primer día que vas a comparar");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step9_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step9_text));
                                                 break;
                                             case 8:
                                                 //Compare button day 2
                                                 showcaseView.setShowcase(target7, true);
-                                                showcaseView.setContentTitle("Compara");
-                                                showcaseView.setContentText("Escoge el segundo día que vas a comparar");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step10_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step10_text));
                                                 break;
                                             case 9:
                                                 //Compare button day 2
                                                 showcaseView.setShowcase(target8, true);
-                                                showcaseView.setContentTitle("Resultados");
-                                                showcaseView.setContentText("Confirma los días que se van a comparar presionando aquí");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step11_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step11_text));
                                                 break;
                                             case 10:
                                                 //End
                                                 showcaseView.setShowcase(target9, true);
-                                                showcaseView.setContentTitle("Eso es todo");
-                                                showcaseView.setContentText("Si necesitas ayuda de nuevo presiona aquí para mostrar el tutorial");
-                                                showcaseView.setButtonText("Terminar");
+                                                showcaseView.setContentTitle(getString(R.string.tut_step12_title));
+                                                showcaseView.setContentText(getString(R.string.tut_step12_text));
+                                                showcaseView.setButtonText(getString(R.string.tut_end_button));
                                                 //Close compare
                                                 changeTempChartToWeek();
                                                 break;

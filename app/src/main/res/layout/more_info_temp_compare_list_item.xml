@@ -31,14 +31,14 @@
                 android:layout_height="wrap_content"
                 android:textColor="#000"
                 android:textSize="10sp"
-                android:text="Dia"/>
+                android:text="@string/day"/>
 
             <TextView
                 android:id="@+id/temp_item_secondary_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="9sp"
-                android:text="Algo mas"/>
+                android:text="-"/>
 
 
         </LinearLayout>
@@ -104,14 +104,14 @@
                 android:layout_height="wrap_content"
                 android:textColor="#000"
                 android:textSize="10sp"
-                android:text="Dia"/>
+                android:text="@string/day"/>
 
             <TextView
                 android:id="@+id/temp_item_secondary_description2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="9sp"
-                android:text="Algo mas"/>
+                android:text="-"/>
 
 
         </LinearLayout>
