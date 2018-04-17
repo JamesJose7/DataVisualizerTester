@@ -1149,12 +1149,31 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
         mExpandFromMiddleCardAnimation.start();
     }
 
-    private String shareMessage = "La %s actual en la UTPL es de: %.2f%s. Via #SmartLandUTPL.";
+    private String getShareMessage() {
+        SimpleDateFormat shareMsgDateFormatter = new SimpleDateFormat("MMMM, d", new Locale("es", "EC"));
+
+        String shareMessageEnd = "Via #SmartLandUTPL.";
+        String shareMessageCurrentDay = "La %s actual en la UTPL es de: %.2f%s.";
+        //Compare if its the same date
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MM YYYY", Locale.US);
+        Date rightNowDate = new Date();
+        String currentDateString = dateFormatter.format(currentDateDisplayed);
+        String rightNowDateString = dateFormatter.format(rightNowDate);
+
+        if (currentDateString.equals(rightNowDateString)) {
+            //We're showing the current day
+            return shareMessageCurrentDay + " " + shareMessageEnd;
+        } else {
+            String sharePastDayMessage = String.format("En %s a las %s ", shareMsgDateFormatter.format(currentDateDisplayed), currentTime.format(currentDateDisplayed));
+            sharePastDayMessage += "la %s en la UTPL fue de: %.2f%s. ";
+            return sharePastDayMessage + shareMessageEnd;
+        }
+    }
 
     @OnClick(R.id.share_humidity)
     protected void shareHumidity() {
         if (mSensorData != null) {
-            String msg = String.format(shareMessage,
+            String msg = String.format(getShareMessage(),
                     "humedad", mSensorData.getHumidity(), "%");
             shareData(msg, "Humedad");
         }
@@ -1163,7 +1182,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @OnClick(R.id.share_temperature)
     protected void shareTemperature() {
         if (mSensorData != null) {
-            String msg = String.format(shareMessage,
+            String msg = String.format(getShareMessage(),
                     "temperatura", mSensorData.getTemperature(), "\u00b0");
             shareData(msg, "Temperatura");
         }
@@ -1172,7 +1191,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
     @OnClick(R.id.share_luminosity)
     protected void shareLuminosity() {
         if (mSensorData != null) {
-            String msg = String.format(shareMessage,
+            String msg = String.format(getShareMessage(),
                     "luminosidad", mSensorData.getLuminosity(), " Ohms");
             shareData(msg, "Luminosidad");
         }
