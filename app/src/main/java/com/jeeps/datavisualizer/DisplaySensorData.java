@@ -474,7 +474,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
      */
     @Override
     public void update(SensorData sensorData) {
-        Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.updated_message, Toast.LENGTH_SHORT).show();
         //Get the current data object
         mSensorData = sensorData;
 
@@ -1270,9 +1270,9 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                         System.out.println();
                         showcaseView = new ShowcaseView.Builder(DisplaySensorData.this)
                                 .withMaterialShowcase()
-                                .setTarget(target1)
-                                .setContentTitle("Seleccionar día")
-                                .setContentText("Cambia el día del cual se muestra la humedad, temperatura y luminosidad en la hora actual")
+                                .setTarget(Target.NONE)
+                                .setContentTitle("Actualizar")
+                                .setContentText("Desliza la pantalla hacia abajo para actualizar los datos en cualquier momento")
                                 .setStyle(R.style.CustomShowcaseTheme2)
                                 .setShowcaseEventListener(DisplaySensorData .this)
                                 .replaceEndButton(R.layout.view_custom_button)
@@ -1281,12 +1281,18 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                                     public void onClick(View v) {
                                         switch (showCaseCounter) {
                                             case 0:
+                                                //Edit day button
+                                                showcaseView.setTarget(target1);
+                                                showcaseView.setContentTitle("Seleccionar día");
+                                                showcaseView.setContentText("Cambia el día del cual se muestra la humedad, temperatura y luminosidad en la hora actual");
+                                                break;
+                                            case 1:
                                                 //Share button
                                                 showcaseView.setShowcase(target2, true);
                                                 showcaseView.setContentTitle("Compartir");
                                                 showcaseView.setContentText("Comparte nuestros datos en tu aplicación favorita");
                                                 break;
-                                            case 1:
+                                            case 2:
                                                 //Graph explanation
                                                 showcaseView.setTarget(Target.NONE);
                                                 showcaseView.setContentTitle("Gráficos");
@@ -1298,25 +1304,25 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                                                     }
                                                 });
                                                 break;
-                                            case 2:
+                                            case 3:
                                                 //Graph spinner
                                                 showcaseView.setTarget(target3);
                                                 showcaseView.setContentTitle("Escoge que se va a graficar");
                                                 showcaseView.setContentText("Según eligas, los gráficos mostraran información sobre la humedad, temperatura o luminosidad");
                                                 break;
-                                            case 3:
+                                            case 4:
                                                 //Graph More info
                                                 showcaseView.setShowcase(target4, true);
                                                 showcaseView.setContentTitle("Más información");
                                                 showcaseView.setContentText("Los datos exactos de cada día u hora se muestran al presionar este botón");
                                                 break;
-                                            case 4:
+                                            case 5:
                                                 //Graph More info
                                                 showcaseView.setShowcase(target5, true);
                                                 showcaseView.setContentTitle("¡Colores!");
                                                 showcaseView.setContentText("Escoge entre dos estilos de gráficos");
                                                 break;
-                                            case 5:
+                                            case 6:
                                                 //Graph comparisson
                                                 showcaseView.setTarget(Target.NONE);
                                                 showcaseView.setContentTitle("Compara");
@@ -1324,26 +1330,26 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                                                 //Open compare
                                                 changeTempChartToCompare();
                                                 break;
-                                            case 6:
+                                            case 7:
                                                 //Compare button day 1
                                                 showcaseView.setTarget(target6);
                                                 showcaseView.setContentTitle("Compara");
                                                 showcaseView.setContentText("Escoge el primer día que vas a comparar");
                                                 break;
-                                            case 7:
+                                            case 8:
                                                 //Compare button day 2
                                                 showcaseView.setShowcase(target7, true);
                                                 showcaseView.setContentTitle("Compara");
                                                 showcaseView.setContentText("Escoge el segundo día que vas a comparar");
                                                 break;
-                                            case 8:
+                                            case 9:
                                                 //Compare button day 2
                                                 showcaseView.setShowcase(target8, true);
                                                 showcaseView.setContentTitle("Resultados");
                                                 showcaseView.setContentText("Confirma los días que se van a comparar presionando aquí");
                                                 break;
-                                            case 9:
-                                                //Graph comparisson
+                                            case 10:
+                                                //End
                                                 showcaseView.setShowcase(target9, true);
                                                 showcaseView.setContentTitle("Eso es todo");
                                                 showcaseView.setContentText("Si necesitas ayuda de nuevo presiona aquí para mostrar el tutorial");
@@ -1351,7 +1357,7 @@ public class DisplaySensorData extends AppCompatActivity implements SensorApiHel
                                                 //Close compare
                                                 changeTempChartToWeek();
                                                 break;
-                                            case 10:
+                                            case 11:
                                                 //Close showcase
                                                 showcaseView.hide();
                                                 showCaseCounter = 0;
